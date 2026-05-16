@@ -89,7 +89,7 @@ firebase use --add
 7. Publica reglas e indexes:
 
 ```bash
-firebase deploy --only firestore:rules,firestore:indexes,storage
+firebase deploy --only firestore:rules,firestore:indexes
 ```
 
 8. Publica hosting:
@@ -112,6 +112,7 @@ Workflows incluidos:
 
 - `.github/workflows/firebase-hosting-merge.yml`
   Publica automaticamente a produccion al hacer `push` o merge a `main`.
+  Despliega Hosting y Firestore. No despliega Storage mientras el proyecto siga en Spark.
 
 ## GitHub Secrets requeridos
 
@@ -158,16 +159,35 @@ Ese secret debe guardar el JSON completo de una service account de Google Cloud,
 - El workflow de producción ahora tambien usa ese mismo JSON para autenticarse con Firebase CLI y ejecutar:
 
 ```bash
-firebase deploy --only firestore,storage
+firebase deploy --only firestore
 ```
 
 Eso publica desde el repositorio:
 
 - `firestore.rules`
 - `firestore.indexes.json`
-- `storage.rules`
 
 No lo hago en el workflow de PR porque no conviene tocar reglas reales desde previews.
+
+## Firebase Storage y plan gratuito
+
+Si quieres mantener el proyecto en el plan gratuito Spark, no uses Firebase Storage por ahora.
+
+La documentacion oficial de Firebase indica que Cloud Storage for Firebase requiere el plan Blaze desde octubre de 2024, aunque siga teniendo cuotas gratuitas de uso una vez activas billing. Fuentes:
+
+- [Cloud Storage for Firebase: Get started on web](https://firebase.google.com/docs/storage/web/start)
+- [Firebase pricing plans](https://firebase.google.com/docs/projects/billing/firebase-pricing-plans?hl=en-419)
+
+En este repo eso no bloquea el MVP porque:
+
+- `logoURL` y `coverURL` aceptan URLs externas
+- el formulario local puede previsualizar imagenes sin subirlas a Firebase
+- los workflows ya no intentan desplegar `storage.rules`
+
+Cuando decidas pasar a Blaze, puedes reactivar Storage en dos pasos:
+
+1. Inicializar Firebase Storage en la consola del proyecto.
+2. Cambiar el workflow de producción para desplegar tambien `storage`.
 
 ## Estructura
 
