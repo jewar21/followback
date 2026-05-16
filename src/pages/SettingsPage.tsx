@@ -33,11 +33,12 @@ export function SettingsPage() {
         <div className="page-heading">
           <span className="eyebrow">Settings</span>
           <h1>Editar cuenta y emprendimiento</h1>
-          <p>{currentUser.email}</p>
+          <p>{currentUser.email}. Aqui puedes completar branding, contacto y todas tus redes cuando quieras.</p>
         </div>
         <VentureForm
           initialValues={ventureToFormValues(currentVenture)}
           submitLabel="Guardar cambios"
+          mode="full"
           onSubmit={(values) => {
             try {
               const venture = updateVenture(currentVenture.id, values)

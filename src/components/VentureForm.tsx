@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ventureCategories } from '../lib/constants'
+import { socialNetworkLabels, ventureCategories } from '../lib/constants'
 import { readFileAsDataUrl } from '../services/uploadService'
 import type { VentureFormValues } from '../types/forms'
 
@@ -7,25 +7,17 @@ type VentureFormProps = {
   initialValues: VentureFormValues
   submitLabel: string
   onSubmit: (values: VentureFormValues) => void
+  mode?: 'onboarding' | 'full'
 }
 
-const networkFields = [
-  'instagram',
-  'tiktok',
-  'facebook',
-  'youtube',
-  'spotify',
-  'x',
-  'linkedin',
-  'website',
-  'whatsapp',
-  'behance',
-  'github',
-] as const
+const primaryNetworkFields = ['instagram', 'tiktok', 'website', 'whatsapp'] as const
+const secondaryNetworkFields = ['facebook', 'youtube', 'spotify', 'x', 'linkedin', 'behance', 'github'] as const
 
-export function VentureForm({ initialValues, submitLabel, onSubmit }: VentureFormProps) {
+export function VentureForm({ initialValues, submitLabel, onSubmit, mode = 'full' }: VentureFormProps) {
   const [values, setValues] = useState<VentureFormValues>(initialValues)
   const [uploading, setUploading] = useState(false)
+  const [showExtraFields, setShowExtraFields] = useState(mode === 'full')
+  const isOnboarding = mode === 'onboarding'
 
   async function handleImageUpload(event: React.ChangeEvent<HTMLInputElement>, field: 'logoURL' | 'coverURL') {
     const file = event.target.files?.[0]
@@ -42,6 +34,26 @@ export function VentureForm({ initialValues, submitLabel, onSubmit }: VentureFor
     }
   }
 
+  function updateSocialLink(field: keyof VentureFormValues['socialLinks'], value: string) {
+    setValues((current) => ({
+      ...current,
+      socialLinks: {
+        ...current.socialLinks,
+        [field]: value,
+      },
+    }))
+  }
+
+  function updateContact(field: keyof VentureFormValues['contact'], value: string) {
+    setValues((current) => ({
+      ...current,
+      contact: {
+        ...current.contact,
+        [field]: value,
+      },
+    }))
+  }
+
   return (
     <form
       className="panel venture-form"
@@ -50,6 +62,13 @@ export function VentureForm({ initialValues, submitLabel, onSubmit }: VentureFor
         onSubmit(values)
       }}
     >
+      {isOnboarding ? (
+        <div className="onboarding-form-intro">
+          <strong>Empieza con lo minimo</strong>
+          <p>Publica tu perfil con los datos esenciales.</p>
+        </div>
+      ) : null}
+
       <div className="form-grid">
         <label className="field field--full">
           <span>Nombre del emprendimiento</span>
@@ -78,15 +97,6 @@ export function VentureForm({ initialValues, submitLabel, onSubmit }: VentureFor
         </label>
 
         <label className="field">
-          <span>Subcategoria</span>
-          <input
-            value={values.subcategory}
-            onChange={(event) => setValues((current) => ({ ...current, subcategory: event.target.value }))}
-            placeholder="Cafe de especialidad"
-          />
-        </label>
-
-        <label className="field">
           <span>Pais</span>
           <input
             required
@@ -108,7 +118,6 @@ export function VentureForm({ initialValues, submitLabel, onSubmit }: VentureFor
         <label className="field field--full">
           <span>Descripcion corta</span>
           <textarea
-            required
             rows={4}
             maxLength={240}
             value={values.description}
@@ -117,128 +126,148 @@ export function VentureForm({ initialValues, submitLabel, onSubmit }: VentureFor
           />
           <small>{values.description.length}/240</small>
         </label>
-
-        <label className="field field--full">
-          <span>Tags</span>
-          <input
-            value={values.tags}
-            onChange={(event) => setValues((current) => ({ ...current, tags: event.target.value }))}
-            placeholder="cafe, comunidad, branding"
-          />
-        </label>
-
-        <label className="field">
-          <span>Logo URL</span>
-          <input
-            value={values.logoURL}
-            onChange={(event) => setValues((current) => ({ ...current, logoURL: event.target.value }))}
-            placeholder="https://..."
-          />
-        </label>
-
-        <label className="field">
-          <span>Subir logo</span>
-          <input type="file" accept="image/*" onChange={(event) => void handleImageUpload(event, 'logoURL')} />
-        </label>
-
-        <label className="field">
-          <span>Cover URL</span>
-          <input
-            value={values.coverURL}
-            onChange={(event) => setValues((current) => ({ ...current, coverURL: event.target.value }))}
-            placeholder="https://..."
-          />
-        </label>
-
-        <label className="field">
-          <span>Subir cover</span>
-          <input type="file" accept="image/*" onChange={(event) => void handleImageUpload(event, 'coverURL')} />
-        </label>
       </div>
 
       <section className="panel-section">
-        <h3>Redes sociales</h3>
+        <div className="section-heading section-heading--stack">
+          <div>
+            <h2>Red principal</h2>
+            <p>Con una sola red o sitio web ya puedes aparecer en el directorio.</p>
+          </div>
+        </div>
         <div className="form-grid">
-          {networkFields.map((field) => (
+          {primaryNetworkFields.map((field) => (
             <label key={field} className="field">
-              <span>{field}</span>
+              <span>{socialNetworkLabels[field]}</span>
               <input
                 value={values.socialLinks[field] ?? ''}
-                onChange={(event) =>
-                  setValues((current) => ({
-                    ...current,
-                    socialLinks: {
-                      ...current.socialLinks,
-                      [field]: event.target.value,
-                    },
-                  }))
-                }
-                placeholder={`URL de ${field}`}
+                onChange={(event) => updateSocialLink(field, event.target.value)}
+                placeholder={field === 'whatsapp' ? 'https://wa.me/...' : `URL de ${socialNetworkLabels[field]}`}
               />
             </label>
           ))}
         </div>
       </section>
 
-      <section className="panel-section">
-        <h3>Contacto publico</h3>
-        <div className="form-grid">
-          <label className="field">
-            <span>Email publico</span>
-            <input
-              type="email"
-              value={values.contact.publicEmail}
-              onChange={(event) =>
-                setValues((current) => ({
-                  ...current,
-                  contact: {
-                    ...current.contact,
-                    publicEmail: event.target.value,
-                  },
-                }))
-              }
-              placeholder="hola@tuemprendimiento.com"
-            />
-          </label>
-
-          <label className="field">
-            <span>Telefono</span>
-            <input
-              value={values.contact.phone}
-              onChange={(event) =>
-                setValues((current) => ({
-                  ...current,
-                  contact: {
-                    ...current.contact,
-                    phone: event.target.value,
-                  },
-                }))
-              }
-              placeholder="+57 300 000 0000"
-            />
-          </label>
-
-          <label className="field">
-            <span>WhatsApp de contacto</span>
-            <input
-              value={values.contact.whatsapp}
-              onChange={(event) =>
-                setValues((current) => ({
-                  ...current,
-                  contact: {
-                    ...current.contact,
-                    whatsapp: event.target.value,
-                  },
-                }))
-              }
-              placeholder="https://wa.me/..."
-            />
-          </label>
+      {isOnboarding ? (
+        <div className="onboarding-extra-actions">
+          <button
+            className="button button--ghost button--block"
+            type="button"
+            onClick={() => setShowExtraFields((current) => !current)}
+          >
+            {showExtraFields ? 'Ocultar campos extra' : 'Quiero completar mas datos ahora'}
+          </button>
+          <p className="muted-text">Tambien podras completar estos datos mas tarde desde Settings.</p>
         </div>
-      </section>
+      ) : null}
+
+      {showExtraFields ? (
+        <>
+          <section className="panel-section">
+            <h3>Datos complementarios</h3>
+            <div className="form-grid">
+              <label className="field">
+                <span>Subcategoria</span>
+                <input
+                  value={values.subcategory}
+                  onChange={(event) => setValues((current) => ({ ...current, subcategory: event.target.value }))}
+                  placeholder="Cafe de especialidad"
+                />
+              </label>
+
+              <label className="field field--full">
+                <span>Tags</span>
+                <input
+                  value={values.tags}
+                  onChange={(event) => setValues((current) => ({ ...current, tags: event.target.value }))}
+                  placeholder="cafe, comunidad, branding"
+                />
+              </label>
+
+              <label className="field">
+                <span>Logo URL</span>
+                <input
+                  value={values.logoURL}
+                  onChange={(event) => setValues((current) => ({ ...current, logoURL: event.target.value }))}
+                  placeholder="https://..."
+                />
+              </label>
+
+              <label className="field">
+                <span>Subir logo</span>
+                <input type="file" accept="image/*" onChange={(event) => void handleImageUpload(event, 'logoURL')} />
+              </label>
+
+              <label className="field">
+                <span>Cover URL</span>
+                <input
+                  value={values.coverURL}
+                  onChange={(event) => setValues((current) => ({ ...current, coverURL: event.target.value }))}
+                  placeholder="https://..."
+                />
+              </label>
+
+              <label className="field">
+                <span>Subir cover</span>
+                <input type="file" accept="image/*" onChange={(event) => void handleImageUpload(event, 'coverURL')} />
+              </label>
+            </div>
+          </section>
+
+          <section className="panel-section">
+            <h3>Redes adicionales</h3>
+            <div className="form-grid">
+              {secondaryNetworkFields.map((field) => (
+                <label key={field} className="field">
+                  <span>{socialNetworkLabels[field]}</span>
+                  <input
+                    value={values.socialLinks[field] ?? ''}
+                    onChange={(event) => updateSocialLink(field, event.target.value)}
+                    placeholder={`URL de ${socialNetworkLabels[field]}`}
+                  />
+                </label>
+              ))}
+            </div>
+          </section>
+
+          <section className="panel-section">
+            <h3>Contacto publico</h3>
+            <div className="form-grid">
+              <label className="field">
+                <span>Email publico</span>
+                <input
+                  type="email"
+                  value={values.contact.publicEmail}
+                  onChange={(event) => updateContact('publicEmail', event.target.value)}
+                  placeholder="hola@tuemprendimiento.com"
+                />
+              </label>
+
+              <label className="field">
+                <span>Telefono</span>
+                <input
+                  value={values.contact.phone}
+                  onChange={(event) => updateContact('phone', event.target.value)}
+                  placeholder="+57 300 000 0000"
+                />
+              </label>
+
+              <label className="field">
+                <span>WhatsApp de contacto</span>
+                <input
+                  value={values.contact.whatsapp}
+                  onChange={(event) => updateContact('whatsapp', event.target.value)}
+                  placeholder="https://wa.me/..."
+                />
+              </label>
+            </div>
+          </section>
+        </>
+      ) : null}
 
       <div className="button-row">
-        <button className="button button--primary" type="submit" disabled={uploading}>
+        <button className={`button button--primary ${isOnboarding ? 'button--block' : ''}`} type="submit" disabled={uploading}>
           {uploading ? 'Procesando imagen...' : submitLabel}
         </button>
       </div>
