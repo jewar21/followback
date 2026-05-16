@@ -183,11 +183,12 @@ En este repo eso no bloquea el MVP porque:
 - `logoURL` y `coverURL` aceptan URLs externas
 - el formulario local puede previsualizar imagenes sin subirlas a Firebase
 - los workflows ya no intentan desplegar `storage.rules`
+- `firebase deploy` local ya no incluye Storage por defecto
 
 Cuando decidas pasar a Blaze, puedes reactivar Storage en dos pasos:
 
 1. Inicializar Firebase Storage en la consola del proyecto.
-2. Cambiar el workflow de producción para desplegar tambien `storage`.
+2. Volver a agregar la seccion `storage` en `firebase.json` y cambiar el workflow de producción para desplegar tambien `storage`.
 
 ## Estructura
 
