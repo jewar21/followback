@@ -1,0 +1,98 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && userDoc().data.role == "admin";
+    }
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId)
+        && request.resource.data.uid == request.auth.uid;
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /ventures/{ventureId} {
+      allow read: if resource.data.status == "published"
+        || (signedIn() && resource.data.ownerId == request.auth.uid)
+        || isAdmin();
+
+      allow create: if signedIn()
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.name is string
+        && request.resource.data.slug is string
+        && request.resource.data.category is string
+        && request.resource.data.country is string;
+
+      allow update: if signedIn()
+        && resource.data.ownerId == request.auth.uid;
+
+      allow delete: if isAdmin();
+    }
+
+    match /followActions/{actionId} {
+      allow create: if signedIn()
+        && request.resource.data.fromUserId == request.auth.uid
+        && request.resource.data.toUserId != request.auth.uid;
+
+      allow read: if signedIn()
+        && (
+          resource.data.fromUserId == request.auth.uid
+          || resource.data.toUserId == request.auth.uid
+          || isAdmin()
+        );
+
+      allow update: if signedIn()
+        && (
+          resource.data.fromUserId == request.auth.uid
+          || resource.data.toUserId == request.auth.uid
+          || isAdmin()
+        );
+
+      allow delete: if isAdmin();
+    }
+
+    match /favorites/{favoriteId} {
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid;
+
+      allow read, update, delete: if signedIn()
+        && resource.data.userId == request.auth.uid;
+    }
+
+    match /networkClicks/{clickId} {
+      allow create: if true;
+      allow read: if isAdmin();
+      allow update, delete: if false;
+    }
+
+    match /analyticsEvents/{eventId} {
+      allow create: if true;
+      allow read: if isAdmin();
+      allow update, delete: if false;
+    }
+
+    match /reports/{reportId} {
+      allow create: if signedIn()
+        && request.resource.data.reporterUserId == request.auth.uid;
+
+      allow read, update, delete: if isAdmin();
+    }
+  }
+}

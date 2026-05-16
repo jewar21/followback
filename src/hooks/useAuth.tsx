@@ -1,0 +1,79 @@
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { createDemoUser, signInWithGoogleAccount, signOutAccount, subscribeToAuthChanges } from '../services/authService'
+import { loadSessionUser, saveSessionUser } from '../lib/storage'
+import { isFirebaseConfigured } from '../lib/env'
+import type { User } from '../types/models'
+
+type AuthContextValue = {
+  user: User | null
+  loading: boolean
+  signInWithGoogle: () => Promise<User>
+  signInDemo: () => Promise<User>
+  signOut: () => Promise<void>
+  firebaseEnabled: boolean
+}
+
+const AuthContext = createContext<AuthContextValue | null>(null)
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(() => loadSessionUser())
+  const [loading, setLoading] = useState(isFirebaseConfigured)
+
+  useEffect(() => {
+    if (!isFirebaseConfigured) {
+      return undefined
+    }
+
+    const unsubscribe = subscribeToAuthChanges((nextUser) => {
+      setUser(nextUser)
+      saveSessionUser(nextUser)
+      setLoading(false)
+    })
+
+    return unsubscribe
+  }, [])
+
+  async function signInWithGoogle() {
+    const nextUser = await signInWithGoogleAccount()
+    setUser(nextUser)
+    saveSessionUser(nextUser)
+    return nextUser
+  }
+
+  async function signInDemo() {
+    const nextUser = createDemoUser()
+    setUser(nextUser)
+    saveSessionUser(nextUser)
+    return nextUser
+  }
+
+  async function signOut() {
+    await signOutAccount()
+    setUser(null)
+    saveSessionUser(null)
+  }
+
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        signInWithGoogle,
+        signInDemo,
+        signOut,
+        firebaseEnabled: isFirebaseConfigured,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  )
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext)
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider.')
+  }
+
+  return context
+}
