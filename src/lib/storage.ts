@@ -3,17 +3,31 @@ import { createSeedDatabase } from './seed'
 
 const DATABASE_KEY = 'followback-db-v1'
 const SESSION_KEY = 'followback-session-v1'
+const SCHEMA_VERSION_KEY = 'followback-schema-version'
+const SCHEMA_VERSION = '2'
 
 export function loadDatabase() {
+  const schemaVersion = localStorage.getItem(SCHEMA_VERSION_KEY)
+  if (schemaVersion !== SCHEMA_VERSION) {
+    const nextDatabase = createSeedDatabase()
+    localStorage.setItem(DATABASE_KEY, JSON.stringify(nextDatabase))
+    localStorage.setItem(SCHEMA_VERSION_KEY, SCHEMA_VERSION)
+    return nextDatabase
+  }
+
   const stored = localStorage.getItem(DATABASE_KEY)
   if (!stored) {
-    return createSeedDatabase()
+    const nextDatabase = createSeedDatabase()
+    localStorage.setItem(SCHEMA_VERSION_KEY, SCHEMA_VERSION)
+    return nextDatabase
   }
 
   try {
     return JSON.parse(stored) as AppDatabase
   } catch {
-    return createSeedDatabase()
+    const nextDatabase = createSeedDatabase()
+    localStorage.setItem(SCHEMA_VERSION_KEY, SCHEMA_VERSION)
+    return nextDatabase
   }
 }
 

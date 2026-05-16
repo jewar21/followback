@@ -1,5 +1,5 @@
 import { GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut, type User as FirebaseUser } from 'firebase/auth'
-import { auth, googleProvider } from '../lib/firebase'
+import { auth, googleProvider, isFirebaseAvailable } from '../lib/firebase'
 import { isFirebaseConfigured } from '../lib/env'
 import type { User } from '../types/models'
 
@@ -34,7 +34,7 @@ export function createDemoUser(): User {
 }
 
 export async function signInWithGoogleAccount() {
-  if (!isFirebaseConfigured) {
+  if (!isFirebaseConfigured || !isFirebaseAvailable || !auth || !googleProvider) {
     throw new Error('Configura las variables VITE_FIREBASE_* para usar Google Login real.')
   }
 
@@ -44,13 +44,13 @@ export async function signInWithGoogleAccount() {
 }
 
 export async function signOutAccount() {
-  if (isFirebaseConfigured) {
+  if (isFirebaseConfigured && isFirebaseAvailable && auth) {
     await signOut(auth)
   }
 }
 
 export function subscribeToAuthChanges(callback: (user: User | null) => void) {
-  if (!isFirebaseConfigured) {
+  if (!isFirebaseConfigured || !isFirebaseAvailable || !auth) {
     callback(null)
     return () => undefined
   }

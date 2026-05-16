@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import { createDemoUser, signInWithGoogleAccount, signOutAccount, subscribeToAuthChanges } from '../services/authService'
 import { loadSessionUser, saveSessionUser } from '../lib/storage'
 import { isFirebaseConfigured } from '../lib/env'
+import { firebaseInitError, isFirebaseAvailable } from '../lib/firebase'
 import type { User } from '../types/models'
 
 type AuthContextValue = {
@@ -17,10 +18,10 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(() => loadSessionUser())
-  const [loading, setLoading] = useState(isFirebaseConfigured)
+  const [loading, setLoading] = useState(isFirebaseConfigured && isFirebaseAvailable)
 
   useEffect(() => {
-    if (!isFirebaseConfigured) {
+    if (!isFirebaseConfigured || !isFirebaseAvailable) {
       return undefined
     }
 
@@ -34,6 +35,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   async function signInWithGoogle() {
+    if (firebaseInitError) {
+      throw firebaseInitError
+    }
+
     const nextUser = await signInWithGoogleAccount()
     setUser(nextUser)
     saveSessionUser(nextUser)
@@ -61,7 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signInWithGoogle,
         signInDemo,
         signOut,
-        firebaseEnabled: isFirebaseConfigured,
+        firebaseEnabled: isFirebaseConfigured && isFirebaseAvailable,
       }}
     >
       {children}
