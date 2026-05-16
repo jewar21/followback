@@ -11,7 +11,7 @@ El producto se presenta como un directorio inteligente con red de apoyo, no como
 - TypeScript
 - Firebase Authentication
 - Cloud Firestore
-- Firebase Storage
+- Firebase Storage opcional
 - Firebase Hosting
 - GitHub Actions
 
@@ -27,7 +27,7 @@ El producto se presenta como un directorio inteligente con red de apoyo, no como
 - Favoritos en `/favorites`
 - Mapa de relaciones en `/network-map`
 - Settings en `/settings`
-- Reglas iniciales de Firestore y Storage
+- Reglas iniciales de Firestore
 - Workflows de CI, preview y deploy productivo
 
 ## Notas de ejecucion
@@ -37,7 +37,7 @@ La app esta preparada para dos modos:
 1. Modo demo local.
    Si no defines `VITE_FIREBASE_*`, la app sigue funcionando con datos seed y login demo.
 2. Modo Firebase real.
-   Si defines las variables `VITE_FIREBASE_*`, el boton de Google Login queda habilitado y el proyecto puede desplegarse con Firebase Hosting.
+   Si defines `API key`, `auth domain`, `project id`, `messaging sender id` y `app id`, el boton de Google Login queda habilitado y el proyecto puede desplegarse con Firebase Hosting.
 
 El store principal del MVP corre en `localStorage` para que el flujo completo sea usable sin bloquear el desarrollo mientras se conectan colecciones reales de Firestore.
 
@@ -66,9 +66,12 @@ Archivo `.env`:
 VITE_FIREBASE_API_KEY=
 VITE_FIREBASE_AUTH_DOMAIN=
 VITE_FIREBASE_PROJECT_ID=
-VITE_FIREBASE_STORAGE_BUCKET=
 VITE_FIREBASE_MESSAGING_SENDER_ID=
 VITE_FIREBASE_APP_ID=
+# Optional while Storage is disabled
+VITE_FIREBASE_STORAGE_BUCKET=
+# Optional if you enable Analytics
+VITE_FIREBASE_MEASUREMENT_ID=
 ```
 
 ## Configuracion de Firebase
@@ -76,9 +79,8 @@ VITE_FIREBASE_APP_ID=
 1. Crea un proyecto en Firebase.
 2. Activa Authentication con Google.
 3. Activa Firestore en modo nativo.
-4. Activa Storage.
-5. Registra una app web y copia la configuracion a `.env`.
-6. Instala Firebase CLI si vas a desplegar desde tu maquina:
+4. Registra una app web y copia la configuracion a `.env`.
+5. Instala Firebase CLI si vas a desplegar desde tu maquina:
 
 ```bash
 npm install -g firebase-tools
@@ -121,13 +123,13 @@ Configura estos secrets en `Settings -> Secrets and variables -> Actions`:
 - `VITE_FIREBASE_API_KEY`
 - `VITE_FIREBASE_AUTH_DOMAIN`
 - `VITE_FIREBASE_PROJECT_ID`
-- `VITE_FIREBASE_STORAGE_BUCKET`
 - `VITE_FIREBASE_MESSAGING_SENDER_ID`
 - `VITE_FIREBASE_APP_ID`
 - `FIREBASE_PROJECT_ID`
 - `FIREBASE_SERVICE_ACCOUNT_FOLLOWBACK`
 
 Si no quieres duplicar el project id, los workflows tambien aceptan `VITE_FIREBASE_PROJECT_ID` como fallback para el deploy.
+`VITE_FIREBASE_STORAGE_BUCKET` es opcional mientras Storage siga deshabilitado.
 
 ## Service account para GitHub Actions
 
@@ -144,11 +146,10 @@ Ese secret debe guardar el JSON completo de una service account de Google Cloud,
 3. Crea una nueva cuenta de servicio, por ejemplo `github-actions-followback`.
 4. Asignale como minimo permisos para este repo:
    - `Firebase Hosting Admin`
-   - `Firebase Authentication Admin`
-   - `Firebase Admin` para publicar recursos Firebase desde CLI
-   - `Cloud Datastore Index Admin` para publicar indexes de Firestore
-   - `Service Usage API Keys Viewer` para despliegues CLI
-   - `Cloud Run Viewer` solo si despues usas rewrites de Hosting hacia Functions o Cloud Run
+  - `Firebase Admin` para publicar recursos Firebase desde CLI
+  - `Cloud Datastore Index Admin` para publicar indexes de Firestore
+  - `Service Usage Admin` para habilitar y consultar APIs requeridas por Firebase CLI
+  - `Cloud Run Viewer` solo si despues usas rewrites de Hosting hacia Functions o Cloud Run
 5. Abre esa cuenta de servicio y crea una clave nueva tipo `JSON`.
 6. Descarga el archivo.
 7. Copia el contenido completo del JSON y guardalo en GitHub como secret con nombre exacto `FIREBASE_SERVICE_ACCOUNT_FOLLOWBACK`.
@@ -209,7 +210,6 @@ followback/
 ├── firebase.json
 ├── firestore.indexes.json
 ├── firestore.rules
-├── storage.rules
 └── README.md
 ```
 
@@ -217,7 +217,7 @@ followback/
 
 - No se automatizan follows en redes externas.
 - El MVP limita a un emprendimiento por usuario.
-- `firestore.rules` y `storage.rules` son una base inicial. Antes de produccion conviene endurecer validacion de campos, tipos y transiciones de estado.
+- `firestore.rules` es una base inicial. Antes de produccion conviene endurecer validacion de campos, tipos y transiciones de estado.
 
 ## Proximos pasos razonables
 

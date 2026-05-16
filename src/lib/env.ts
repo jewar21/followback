@@ -9,4 +9,13 @@ export const firebaseEnv = {
   appId: env.VITE_FIREBASE_APP_ID,
 }
 
-export const isFirebaseConfigured = Object.values(firebaseEnv).every(Boolean)
+export const requiredFirebaseEnv = {
+  apiKey: firebaseEnv.apiKey,
+  authDomain: firebaseEnv.authDomain,
+  projectId: firebaseEnv.projectId,
+  messagingSenderId: firebaseEnv.messagingSenderId,
+  appId: firebaseEnv.appId,
+}
+
+export const isFirebaseConfigured = Object.values(requiredFirebaseEnv).every(Boolean)
+export const hasFirebaseStorageBucket = Boolean(firebaseEnv.storageBucket)
