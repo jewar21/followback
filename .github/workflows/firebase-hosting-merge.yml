@@ -11,6 +11,8 @@ permissions:
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
+    env:
+      FIREBASE_PROJECT_ID_RESOLVED: ${{ secrets.FIREBASE_PROJECT_ID || secrets.VITE_FIREBASE_PROJECT_ID }}
 
     steps:
       - name: Checkout repository
@@ -47,13 +49,20 @@ jobs:
       - name: Install Firebase CLI
         run: npm install --global firebase-tools
 
+      - name: Validate Firebase project id
+        run: |
+          if [ -z "$FIREBASE_PROJECT_ID_RESOLVED" ]; then
+            echo "Missing FIREBASE_PROJECT_ID secret. Set FIREBASE_PROJECT_ID or VITE_FIREBASE_PROJECT_ID in GitHub Secrets."
+            exit 1
+          fi
+
       - name: Authenticate Firebase CLI
         run: |
           echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_FOLLOWBACK }}' > "$RUNNER_TEMP/firebase-service-account.json"
           echo "GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/firebase-service-account.json" >> "$GITHUB_ENV"
 
       - name: Deploy Firestore and Storage rules
-        run: firebase deploy --project "${{ secrets.FIREBASE_PROJECT_ID }}" --only firestore,storage --non-interactive
+        run: firebase deploy --project "$FIREBASE_PROJECT_ID_RESOLVED" --only firestore,storage --non-interactive
 
       - name: Deploy production
         uses: FirebaseExtended/action-hosting-deploy@v0
@@ -61,4 +70,4 @@ jobs:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_FOLLOWBACK }}
           channelId: live
-          projectId: ${{ secrets.FIREBASE_PROJECT_ID }}
+          projectId: ${{ env.FIREBASE_PROJECT_ID_RESOLVED }}

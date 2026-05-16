@@ -126,6 +126,8 @@ Configura estos secrets en `Settings -> Secrets and variables -> Actions`:
 - `FIREBASE_PROJECT_ID`
 - `FIREBASE_SERVICE_ACCOUNT_FOLLOWBACK`
 
+Si no quieres duplicar el project id, los workflows tambien aceptan `VITE_FIREBASE_PROJECT_ID` como fallback para el deploy.
+
 ## Service account para GitHub Actions
 
 El secret que ya espera este repo es:
