@@ -25,5 +25,6 @@ export function createSeedDatabase(): AppDatabase {
     networkClicks: [],
     analyticsEvents: [],
     reports: [],
+    feedbacks: [],
   }
 }

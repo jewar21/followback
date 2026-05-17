@@ -35,6 +35,7 @@ function normalizeDatabase(database: unknown) {
       ? candidate.analyticsEvents
       : emptyDatabase.analyticsEvents,
     reports: Array.isArray(candidate.reports) ? candidate.reports : emptyDatabase.reports,
+    feedbacks: Array.isArray(candidate.feedbacks) ? candidate.feedbacks : emptyDatabase.feedbacks,
   } satisfies AppDatabase
 }
 
@@ -60,6 +61,7 @@ function migrateDatabase(database: AppDatabase) {
       (event) => !event.ventureId || keptVentureIds.has(event.ventureId),
     ),
     reports: database.reports.filter((report) => keptVentureIds.has(report.reportedVentureId)),
+    feedbacks: database.feedbacks,
   } satisfies AppDatabase
 }
 

@@ -31,6 +31,8 @@ export type User = {
   role: UserRole
   status: UserStatus
   onboardingCompleted: boolean
+  welcomeEmailSentAt?: string
+  onboardingEmailSentAt?: string
   createdAt: string
   updatedAt: string
 }
@@ -136,6 +138,20 @@ export type Report = {
   createdAt: string
 }
 
+export type Feedback = {
+  id: string
+  userId: string
+  ventureId?: string
+  title: string
+  category: 'profile_update' | 'ux' | 'bug' | 'feature' | 'other'
+  profileStatus: 'updated' | 'working_on_it' | 'need_help'
+  message: string
+  contactEmail: string
+  status: 'new' | 'reviewed' | 'planned' | 'closed'
+  createdAt: string
+  updatedAt: string
+}
+
 export type NetworkNode = {
   id: string
   label: string
@@ -159,4 +175,5 @@ export type AppDatabase = {
   networkClicks: NetworkClick[]
   analyticsEvents: AnalyticsEvent[]
   reports: Report[]
+  feedbacks: Feedback[]
 }

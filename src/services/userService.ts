@@ -15,6 +15,8 @@ export function upsertUser(database: AppDatabase, incomingUser: User) {
     role: existing.role,
     status: existing.status,
     onboardingCompleted: existing.onboardingCompleted,
+    welcomeEmailSentAt: existing.welcomeEmailSentAt,
+    onboardingEmailSentAt: existing.onboardingEmailSentAt,
     createdAt: existing.createdAt,
     updatedAt: new Date().toISOString(),
   }

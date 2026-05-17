@@ -1,0 +1,14 @@
+{
+  "name": "followback-functions",
+  "private": true,
+  "main": "index.js",
+  "engines": {
+    "node": "22.x",
+    "npm": "10.x"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.6.0",
+    "firebase-functions": "^6.6.0",
+    "resend": "^6.3.0"
+  }
+}

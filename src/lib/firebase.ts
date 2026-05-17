@@ -1,6 +1,7 @@
 import { initializeApp, type FirebaseApp } from 'firebase/app'
 import { getAuth, GoogleAuthProvider, type Auth } from 'firebase/auth'
 import { getFirestore, type Firestore } from 'firebase/firestore'
+import { getFunctions, type Functions } from 'firebase/functions'
 import { getStorage, type FirebaseStorage } from 'firebase/storage'
 import { firebaseEnv, hasFirebaseStorageBucket, isFirebaseConfigured } from './env'
 
@@ -16,6 +17,7 @@ const firebaseConfig = {
 let app: FirebaseApp | null = null
 let auth: Auth | null = null
 let db: Firestore | null = null
+let functions: Functions | null = null
 let storage: FirebaseStorage | null = null
 let googleProvider: GoogleAuthProvider | null = null
 let firebaseInitError: Error | null = null
@@ -25,6 +27,7 @@ if (isFirebaseConfigured) {
     app = initializeApp(firebaseConfig)
     auth = getAuth(app)
     db = getFirestore(app)
+    functions = getFunctions(app)
     googleProvider = new GoogleAuthProvider()
 
     if (hasFirebaseStorageBucket) {
@@ -35,5 +38,5 @@ if (isFirebaseConfigured) {
   }
 }
 
-export { app, auth, db, storage, googleProvider, firebaseInitError }
+export { app, auth, db, functions, storage, googleProvider, firebaseInitError }
 export const isFirebaseAvailable = Boolean(app && auth && db && googleProvider)

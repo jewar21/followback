@@ -33,6 +33,14 @@ export type ReportFormValues = {
   description: string
 }
 
+export type FeedbackFormValues = {
+  title: string
+  category: 'profile_update' | 'ux' | 'bug' | 'feature' | 'other'
+  profileStatus: 'updated' | 'working_on_it' | 'need_help'
+  message: string
+  contactEmail: string
+}
+
 export const defaultVentureFormValues: VentureFormValues = {
   name: '',
   description: '',
@@ -71,4 +79,12 @@ export const defaultVentureFilters: VentureFilters = {
   city: '',
   network: '',
   sortBy: 'recent',
+}
+
+export const defaultFeedbackFormValues: FeedbackFormValues = {
+  title: '',
+  category: 'profile_update',
+  profileStatus: 'working_on_it',
+  message: '',
+  contactEmail: '',
 }

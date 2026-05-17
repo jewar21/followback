@@ -65,3 +65,17 @@ export const reportReasons = [
   'Datos desactualizados',
   'Otro',
 ]
+
+export const feedbackCategoryLabels = {
+  profile_update: 'Actualizacion de perfil',
+  ux: 'Experiencia de uso',
+  bug: 'Problema o error',
+  feature: 'Idea o mejora',
+  other: 'Otro',
+} as const
+
+export const feedbackProfileStatusLabels = {
+  updated: 'Ya actualice mis datos',
+  working_on_it: 'Estoy actualizando mis datos',
+  need_help: 'Necesito ayuda para completar mi perfil',
+} as const

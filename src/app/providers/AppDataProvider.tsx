@@ -1,9 +1,26 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { LoadingState } from '../../components/LoadingState'
 import { useAuth } from '../../hooks/useAuth'
-import { saveDatabase, loadDatabase } from '../../lib/storage'
+import { loadDatabase, saveDatabase } from '../../lib/storage'
+import { updateFeedbackAdminStatus, updateReportAdminStatus, updateUserAdminFields } from '../../services/adminService'
+import { trackNetworkClick, trackProfileView } from '../../services/analyticsService'
+import { createFeedback } from '../../services/feedbackService'
 import { toggleFavorite } from '../../services/favoriteService'
+import {
+  deleteFirestoreFavorite,
+  upsertFirestoreFeedback,
+  loadDatabaseFromFirestore,
+  upsertFirestoreAnalyticsEvent,
+  upsertFirestoreFavorite,
+  upsertFirestoreFollowAction,
+  upsertFirestoreNetworkClick,
+  upsertFirestoreReport,
+  upsertFirestoreUser,
+  upsertFirestoreVenture,
+} from '../../services/firestoreDatabaseService'
 import { createFollowAction, updateFollowActionStatus } from '../../services/followActionService'
 import { reportVenture } from '../../services/reportService'
+import { upsertUser } from '../../services/userService'
 import {
   createVenture as createVentureRecord,
   getCurrentUserVenture,
@@ -11,10 +28,8 @@ import {
   getVentureBySlug,
   updateVenture as updateVentureRecord,
 } from '../../services/ventureService'
-import { upsertUser } from '../../services/userService'
-import { trackNetworkClick, trackProfileView } from '../../services/analyticsService'
-import type { AppDatabase, FollowActionStatus, SocialNetworkName, User, Venture } from '../../types/models'
-import type { VentureFormValues } from '../../types/forms'
+import type { FeedbackFormValues, VentureFormValues } from '../../types/forms'
+import type { AppDatabase, Feedback, FollowActionStatus, Report, SocialNetworkName, User, UserRole, UserStatus, Venture } from '../../types/models'
 
 type AppDataContextValue = {
   database: AppDatabase
@@ -39,17 +54,93 @@ type AppDataContextValue = {
   trackNetworkClick: (ventureId: string, network: SocialNetworkName, url: string) => void
   trackProfileView: (ventureId: string) => void
   reportVenture: (ventureId: string, reason: string, description: string) => void
+  submitFeedback: (values: FeedbackFormValues) => void
+  updateUserAdminFields: (userId: string, updates: { role?: UserRole; status?: UserStatus }) => void
+  updateFeedbackAdminStatus: (feedbackId: string, status: Feedback['status']) => void
+  updateReportAdminStatus: (reportId: string, status: Report['status']) => void
 }
 
 const AppDataContext = createContext<AppDataContextValue | null>(null)
 
 export function AppDataProvider({ children }: { children: ReactNode }) {
-  const { user: authUser } = useAuth()
+  const { user: authUser, loading: authLoading, firebaseEnabled } = useAuth()
   const [database, setDatabase] = useState<AppDatabase>(() => loadDatabase())
+  const [loading, setLoading] = useState(firebaseEnabled)
 
   useEffect(() => {
     saveDatabase(database)
   }, [database])
+
+  useEffect(() => {
+    if (!firebaseEnabled) {
+      return
+    }
+
+    if (authLoading) {
+      return
+    }
+
+    let cancelled = false
+
+    async function hydrate() {
+      setLoading(true)
+
+      try {
+        const localDatabase = loadDatabase()
+        let nextDatabase = await loadDatabaseFromFirestore(authUser)
+
+        if (authUser) {
+          const localUser = localDatabase.users.find((user) => user.uid === authUser.uid)
+          const localVenture = getCurrentUserVenture(localDatabase, authUser.uid)
+          const hasRemoteVenture = nextDatabase.ventures.some((venture) => venture.ownerId === authUser.uid)
+
+          if (localUser && !nextDatabase.users.some((user) => user.uid === authUser.uid)) {
+            nextDatabase = upsertUser(nextDatabase, localUser)
+          }
+
+          if (localVenture && !hasRemoteVenture) {
+            nextDatabase = {
+              ...nextDatabase,
+              ventures: [localVenture, ...nextDatabase.ventures.filter((venture) => venture.id !== localVenture.id)],
+            }
+          }
+        }
+
+        if (cancelled) {
+          return
+        }
+
+        setDatabase(nextDatabase)
+
+        if (authUser) {
+          const persistedUser = nextDatabase.users.find((user) => user.uid === authUser.uid) ?? authUser
+          const persistedVenture = getCurrentUserVenture(nextDatabase, authUser.uid)
+
+          await upsertFirestoreUser(persistedUser)
+
+          if (persistedVenture) {
+            await upsertFirestoreVenture(persistedVenture)
+          }
+        }
+      } catch (error) {
+        console.error('No fue posible cargar datos desde Firestore.', error)
+
+        if (!cancelled) {
+          setDatabase(loadDatabase())
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false)
+        }
+      }
+    }
+
+    void hydrate()
+
+    return () => {
+      cancelled = true
+    }
+  }, [authLoading, authUser, firebaseEnabled])
 
   const currentUser = authUser
     ? database.users.find((user) => user.uid === authUser.uid) ?? authUser
@@ -70,6 +161,14 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     const user = requireUser()
     const result = createVentureRecord(upsertUser(database, user), user, values)
     setDatabase(result.database)
+
+    if (firebaseEnabled) {
+      const persistedUser = result.database.users.find((item) => item.uid === user.uid) ?? user
+      void Promise.all([upsertFirestoreUser(persistedUser), upsertFirestoreVenture(result.venture)]).catch((error) => {
+        console.error('No fue posible sincronizar el emprendimiento con Firestore.', error)
+      })
+    }
+
     return result.venture
   }
 
@@ -81,12 +180,51 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       next.ventures[index] = venture
       return next
     })
+
+    if (firebaseEnabled) {
+      void upsertFirestoreVenture(venture).catch((error) => {
+        console.error('No fue posible actualizar el emprendimiento en Firestore.', error)
+      })
+    }
+
     return venture
   }
 
   function handleToggleFavorite(ventureId: string) {
     const user = requireUser()
-    setDatabase((current) => toggleFavorite(current, user.uid, ventureId))
+    setDatabase((current) => {
+      const next = toggleFavorite(current, user.uid, ventureId)
+
+      if (firebaseEnabled) {
+        const previousFavorite = current.favorites.find(
+          (favorite) => favorite.userId === user.uid && favorite.ventureId === ventureId,
+        )
+        const nextFavorite = next.favorites.find(
+          (favorite) => favorite.userId === user.uid && favorite.ventureId === ventureId,
+        )
+        const updatedVenture = next.ventures.find((venture) => venture.id === ventureId)
+
+        void (async () => {
+          try {
+            if (previousFavorite && !nextFavorite) {
+              await deleteFirestoreFavorite(previousFavorite.id)
+            }
+
+            if (nextFavorite) {
+              await upsertFirestoreFavorite(nextFavorite)
+            }
+
+            if (updatedVenture) {
+              await upsertFirestoreVenture(updatedVenture)
+            }
+          } catch (error) {
+            console.error('No fue posible sincronizar favoritos con Firestore.', error)
+          }
+        })()
+      }
+
+      return next
+    })
   }
 
   function handleCreateFollowAction(
@@ -102,14 +240,36 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       throw new Error('Completa tu emprendimiento antes de usar FollowBack.')
     }
 
-    setDatabase((current) =>
-      createFollowAction(current, {
+    setDatabase((current) => {
+      const next = createFollowAction(current, {
         currentUser: user,
         currentVenture,
         targetVenture,
         network,
-      }),
-    )
+      })
+
+      if (firebaseEnabled) {
+        const action = next.followActions[0]
+        const fromVenture = next.ventures.find((venture) => venture.id === currentVenture.id)
+        const toVenture = next.ventures.find((venture) => venture.id === targetVenture.id)
+        const analyticsEvent = next.analyticsEvents[0]
+
+        void (async () => {
+          try {
+            await Promise.all([
+              upsertFirestoreFollowAction(action),
+              fromVenture ? upsertFirestoreVenture(fromVenture) : Promise.resolve(),
+              toVenture ? upsertFirestoreVenture(toVenture) : Promise.resolve(),
+              analyticsEvent ? upsertFirestoreAnalyticsEvent(analyticsEvent) : Promise.resolve(),
+            ])
+          } catch (error) {
+            console.error('No fue posible sincronizar la solicitud FollowBack con Firestore.', error)
+          }
+        })()
+      }
+
+      return next
+    })
   }
 
   function handleUpdateFollowActionStatus(
@@ -117,40 +277,206 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     status: Extract<FollowActionStatus, 'reciprocated' | 'rejected' | 'cancelled'>,
   ) {
     const user = requireUser()
-    setDatabase((current) =>
-      updateFollowActionStatus(current, {
+    setDatabase((current) => {
+      const next = updateFollowActionStatus(current, {
         actionId,
         actorUserId: user.uid,
         status,
-      }),
-    )
+      })
+
+      if (firebaseEnabled) {
+        const updatedAction = next.followActions.find((item) => item.id === actionId)
+        const currentAction = current.followActions.find((item) => item.id === actionId)
+        const shouldSyncVentureMetrics = currentAction?.status !== updatedAction?.status && status === 'reciprocated'
+
+        void (async () => {
+          try {
+            await Promise.all([
+              updatedAction ? upsertFirestoreFollowAction(updatedAction) : Promise.resolve(),
+              shouldSyncVentureMetrics && updatedAction
+                ? Promise.all(
+                    next.ventures
+                      .filter(
+                        (venture) =>
+                          venture.id === updatedAction.fromVentureId || venture.id === updatedAction.toVentureId,
+                      )
+                      .map((venture) => upsertFirestoreVenture(venture)),
+                  )
+                : Promise.resolve(),
+              next.analyticsEvents[0] && status === 'reciprocated'
+                ? upsertFirestoreAnalyticsEvent(next.analyticsEvents[0])
+                : Promise.resolve(),
+            ])
+          } catch (error) {
+            console.error('No fue posible actualizar la solicitud FollowBack en Firestore.', error)
+          }
+        })()
+      }
+
+      return next
+    })
   }
 
   function handleTrackNetworkClick(ventureId: string, network: SocialNetworkName, url: string) {
-    setDatabase((current) =>
-      trackNetworkClick(current, {
+    setDatabase((current) => {
+      const next = trackNetworkClick(current, {
         ventureId,
         userId: currentUser?.uid,
         network,
         url,
-      }),
-    )
+      })
+
+      if (firebaseEnabled) {
+        const updatedVenture = next.ventures.find((venture) => venture.id === ventureId)
+        const click = next.networkClicks[0]
+        const analyticsEvent = next.analyticsEvents[0]
+
+        void (async () => {
+          try {
+            await Promise.all([
+              updatedVenture ? upsertFirestoreVenture(updatedVenture) : Promise.resolve(),
+              click ? upsertFirestoreNetworkClick(click) : Promise.resolve(),
+              analyticsEvent ? upsertFirestoreAnalyticsEvent(analyticsEvent) : Promise.resolve(),
+            ])
+          } catch (error) {
+            console.error('No fue posible registrar el click en Firestore.', error)
+          }
+        })()
+      }
+
+      return next
+    })
   }
 
   function handleTrackProfileView(ventureId: string) {
-    setDatabase((current) => trackProfileView(current, ventureId, currentUser?.uid))
+    setDatabase((current) => {
+      const next = trackProfileView(current, ventureId, currentUser?.uid)
+
+      if (firebaseEnabled) {
+        const updatedVenture = next.ventures.find((venture) => venture.id === ventureId)
+        const analyticsEvent = next.analyticsEvents[0]
+
+        void (async () => {
+          try {
+            await Promise.all([
+              updatedVenture ? upsertFirestoreVenture(updatedVenture) : Promise.resolve(),
+              analyticsEvent ? upsertFirestoreAnalyticsEvent(analyticsEvent) : Promise.resolve(),
+            ])
+          } catch (error) {
+            console.error('No fue posible registrar la visita en Firestore.', error)
+          }
+        })()
+      }
+
+      return next
+    })
   }
 
   function handleReportVenture(ventureId: string, reason: string, description: string) {
     const user = requireUser()
-    setDatabase((current) =>
-      reportVenture(current, {
+    setDatabase((current) => {
+      const next = reportVenture(current, {
         reporterUserId: user.uid,
         reportedVentureId: ventureId,
         reason,
         description,
-      }),
-    )
+      })
+
+      if (firebaseEnabled) {
+        const latestReport = next.reports[0]
+        void upsertFirestoreReport(latestReport).catch((error) => {
+          console.error('No fue posible registrar el reporte en Firestore.', error)
+        })
+      }
+
+      return next
+    })
+  }
+
+  function handleSubmitFeedback(values: FeedbackFormValues) {
+    const user = requireUser()
+    const result = createFeedback(database, {
+      currentUser: user,
+      currentVenture,
+      values,
+    })
+    setDatabase(result.database)
+
+    if (firebaseEnabled) {
+      void upsertFirestoreFeedback(result.feedback).catch((error) => {
+        console.error('No fue posible registrar el feedback en Firestore.', error)
+      })
+    }
+  }
+
+  function handleUpdateUserAdminFields(userId: string, updates: { role?: UserRole; status?: UserStatus }) {
+    const user = requireUser()
+    const updatedUser = updateUserAdminFields(database, {
+      userId,
+      actorUserId: user.uid,
+      ...updates,
+    })
+
+    setDatabase((current) => {
+      const next = structuredClone(current)
+      const index = next.users.findIndex((item) => item.uid === updatedUser.uid)
+      next.users[index] = updatedUser
+      return next
+    })
+
+    if (firebaseEnabled) {
+      void upsertFirestoreUser(updatedUser).catch((error) => {
+        console.error('No fue posible actualizar el usuario en Firestore.', error)
+      })
+    }
+  }
+
+  function handleUpdateFeedbackAdminStatus(feedbackId: string, status: Feedback['status']) {
+    const user = requireUser()
+    const updatedFeedback = updateFeedbackAdminStatus(database, {
+      feedbackId,
+      actorUserId: user.uid,
+      status,
+    })
+
+    setDatabase((current) => {
+      const next = structuredClone(current)
+      const index = next.feedbacks.findIndex((item) => item.id === updatedFeedback.id)
+      next.feedbacks[index] = updatedFeedback
+      return next
+    })
+
+    if (firebaseEnabled) {
+      void upsertFirestoreFeedback(updatedFeedback).catch((error) => {
+        console.error('No fue posible actualizar el feedback en Firestore.', error)
+      })
+    }
+  }
+
+  function handleUpdateReportAdminStatus(reportId: string, status: Report['status']) {
+    const user = requireUser()
+    const updatedReport = updateReportAdminStatus(database, {
+      reportId,
+      actorUserId: user.uid,
+      status,
+    })
+
+    setDatabase((current) => {
+      const next = structuredClone(current)
+      const index = next.reports.findIndex((item) => item.id === updatedReport.id)
+      next.reports[index] = updatedReport
+      return next
+    })
+
+    if (firebaseEnabled) {
+      void upsertFirestoreReport(updatedReport).catch((error) => {
+        console.error('No fue posible actualizar el reporte en Firestore.', error)
+      })
+    }
+  }
+
+  if (firebaseEnabled && (authLoading || loading)) {
+    return <LoadingState label="Sincronizando datos..." />
   }
 
   return (
@@ -169,6 +495,10 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
         trackNetworkClick: handleTrackNetworkClick,
         trackProfileView: handleTrackProfileView,
         reportVenture: handleReportVenture,
+        submitFeedback: handleSubmitFeedback,
+        updateUserAdminFields: handleUpdateUserAdminFields,
+        updateFeedbackAdminStatus: handleUpdateFeedbackAdminStatus,
+        updateReportAdminStatus: handleUpdateReportAdminStatus,
       }}
     >
       {children}

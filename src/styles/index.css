@@ -477,7 +477,88 @@ small {
   margin-top: 1.5rem;
 }
 
+.feedback-layout {
+  display: grid;
+  gap: 1rem;
+}
+
+.feedback-meta-card,
+.settings-callout {
+  display: grid;
+  gap: 0.35rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(140, 198, 255, 0.12);
+}
+
+.feedback-item__header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.admin-layout,
+.admin-actions,
+.admin-toolbar {
+  display: grid;
+  gap: 1rem;
+}
+
 .filter-panel {
+  margin-bottom: 1.4rem;
+}
+
+.discover-toolbar,
+.discover-filter-actions,
+.discover-active-filters {
+  display: grid;
+  gap: 1rem;
+}
+
+.discover-search__input {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px solid rgba(140, 198, 255, 0.12);
+  border-radius: 1rem;
+  padding: 0 1rem;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.discover-search__input svg {
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.discover-search__input input {
+  border: 0;
+  padding-left: 0;
+  padding-right: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.discover-search__input:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--ring);
+}
+
+.discover-filter-actions {
+  margin-top: 1rem;
+}
+
+.discover-filter-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 1rem 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.discover-active-filters {
   margin-bottom: 1.4rem;
 }
 
@@ -772,9 +853,45 @@ small {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .discover-toolbar {
+    grid-template-columns: minmax(0, 1.5fr) minmax(220px, 0.5fr);
+    align-items: end;
+  }
+
+  .discover-filter-actions {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .discover-active-filters {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
   .onboarding-layout {
     grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
     align-items: start;
+  }
+
+  .feedback-layout {
+    grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+    align-items: start;
+  }
+
+  .admin-layout {
+    grid-template-columns: minmax(0, 1.1fr) minmax(340px, 0.9fr);
+    align-items: start;
+  }
+
+  .admin-actions,
+  .settings-callout {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+
+  .admin-toolbar {
+    grid-template-columns: 1fr auto;
+    align-items: center;
   }
 
   .onboarding-benefits {

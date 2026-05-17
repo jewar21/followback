@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAppData } from '../app/providers/AppDataProvider'
 import { EmptyState } from '../components/EmptyState'
 import { VentureForm } from '../components/VentureForm'
+import { Link } from 'react-router-dom'
 import { useCurrentUser } from '../hooks/useCurrentUser'
 import { useToast } from '../hooks/useToast'
 import { ventureToFormValues } from '../services/ventureService'
@@ -35,6 +36,15 @@ export function SettingsPage() {
           <h1>Editar cuenta y emprendimiento</h1>
           <p>{currentUser.email}. Aqui puedes completar branding, contacto y todas tus redes cuando quieras.</p>
         </div>
+        <section className="panel settings-callout">
+          <div>
+            <strong>¿Encontraste algo para mejorar?</strong>
+            <p className="muted-text">Estamos aplicando cambios en la app y nos sirve mucho saber si ya actualizaste tus datos o si algo te esta frenando.</p>
+          </div>
+          <Link className="button button--ghost" to="/feedback">
+            Dejar feedback
+          </Link>
+        </section>
         <VentureForm
           initialValues={ventureToFormValues(currentVenture)}
           submitLabel="Guardar cambios"

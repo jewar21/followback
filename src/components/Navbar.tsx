@@ -13,6 +13,7 @@ const publicLinks = [
 const privateLinks = [
   { to: '/dashboard', label: 'Dashboard' },
   { to: '/favorites', label: 'Favoritos' },
+  { to: '/feedback', label: 'Feedback' },
   { to: '/settings', label: 'Settings' },
 ]
 
@@ -21,6 +22,11 @@ export function Navbar() {
   const currentUser = useCurrentUser()
   const currentVenture = useCurrentVenture()
   const { signOut } = useAuth()
+  const links = [
+    ...publicLinks,
+    ...(currentUser ? privateLinks : []),
+    ...(currentUser?.role === 'admin' ? [{ to: '/admin', label: 'Admin' }] : []),
+  ]
 
   return (
     <header className="site-header">
@@ -35,7 +41,7 @@ export function Navbar() {
         </button>
 
         <nav className={`site-nav ${open ? 'site-nav--open' : ''}`}>
-          {[...publicLinks, ...(currentUser ? privateLinks : [])].map((link) => (
+          {links.map((link) => (
             <NavLink
               key={link.to}
               className={({ isActive }) => `nav-link ${isActive ? 'nav-link--active' : ''}`}

@@ -44,6 +44,8 @@ El store principal del MVP corre en `localStorage` para que el flujo completo se
 ## Instalacion local
 
 ```bash
+nvm install
+nvm use
 npm install
 cp .env.example .env
 npm run dev
@@ -73,6 +75,8 @@ VITE_FIREBASE_STORAGE_BUCKET=
 # Optional if you enable Analytics
 VITE_FIREBASE_MEASUREMENT_ID=
 ```
+
+Puedes partir de [`.env.example`](/home/yisus/Documents/workspace/UFPSO/followback/.env.example:1).
 
 ## Configuracion de Firebase
 
@@ -114,7 +118,7 @@ Workflows incluidos:
 
 - `.github/workflows/firebase-hosting-merge.yml`
   Publica automaticamente a produccion al hacer `push` o merge a `main`.
-  Despliega Hosting y Firestore. No despliega Storage mientras el proyecto siga en Spark.
+  Despliega Functions, Hosting y Firestore. No despliega Storage mientras el proyecto siga en Spark.
 
 ## GitHub Secrets requeridos
 
@@ -127,9 +131,17 @@ Configura estos secrets en `Settings -> Secrets and variables -> Actions`:
 - `VITE_FIREBASE_APP_ID`
 - `FIREBASE_PROJECT_ID`
 - `FIREBASE_SERVICE_ACCOUNT_FOLLOWBACK`
+- `RESEND_API_KEY`
+- `MAIL_FROM`
+- `APP_BASE_URL`
+- `EMAIL_AUTOMATION_ENABLED`
+- `ADMIN_CAMPAIGNS_ENABLED`
 
 Si no quieres duplicar el project id, los workflows tambien aceptan `VITE_FIREBASE_PROJECT_ID` como fallback para el deploy.
 `VITE_FIREBASE_STORAGE_BUCKET` es opcional mientras Storage siga deshabilitado.
+`EMAIL_AUTOMATION_ENABLED` y `ADMIN_CAMPAIGNS_ENABLED` pueden quedar en `false` si quieres desplegar Functions sin activar correos todavia.
+
+Para deploys locales de Functions puedes partir de [`functions/.env.example`](/home/yisus/Documents/workspace/UFPSO/followback/functions/.env.example:1), pero en GitHub Actions esos valores deben existir como `Secrets`.
 
 ## Service account para GitHub Actions
 

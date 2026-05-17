@@ -60,8 +60,55 @@ jobs:
           echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_FOLLOWBACK }}' > "$RUNNER_TEMP/firebase-service-account.json"
           echo "GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/firebase-service-account.json" >> "$GITHUB_ENV"
 
-      - name: Deploy Firestore rules and indexes
-        run: firebase deploy --project "$FIREBASE_PROJECT_ID_RESOLVED" --only firestore --non-interactive
+      - name: Install functions dependencies
+        run: npm ci --prefix functions
+
+      - name: Validate email automation secrets
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          MAIL_FROM: ${{ secrets.MAIL_FROM }}
+          APP_BASE_URL: ${{ secrets.APP_BASE_URL }}
+        run: |
+          if [ -z "$RESEND_API_KEY" ]; then
+            echo "Missing RESEND_API_KEY secret."
+            exit 1
+          fi
+
+          if [ -z "$MAIL_FROM" ]; then
+            echo "Missing MAIL_FROM secret."
+            exit 1
+          fi
+
+          if [ -z "$APP_BASE_URL" ]; then
+            echo "Missing APP_BASE_URL secret."
+            exit 1
+          fi
+
+      - name: Write functions environment
+        env:
+          MAIL_FROM: ${{ secrets.MAIL_FROM }}
+          APP_BASE_URL: ${{ secrets.APP_BASE_URL }}
+          EMAIL_AUTOMATION_ENABLED: ${{ secrets.EMAIL_AUTOMATION_ENABLED }}
+          ADMIN_CAMPAIGNS_ENABLED: ${{ secrets.ADMIN_CAMPAIGNS_ENABLED }}
+        run: |
+          cat > functions/.env <<EOF
+          MAIL_FROM=$MAIL_FROM
+          APP_BASE_URL=$APP_BASE_URL
+          EMAIL_AUTOMATION_ENABLED=${EMAIL_AUTOMATION_ENABLED:-false}
+          ADMIN_CAMPAIGNS_ENABLED=${ADMIN_CAMPAIGNS_ENABLED:-false}
+          EOF
+
+      - name: Sync RESEND_API_KEY to Firebase Secret Manager
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: |
+          printf '%s' "$RESEND_API_KEY" > "$RUNNER_TEMP/resend_api_key.txt"
+          firebase functions:secrets:set RESEND_API_KEY \
+            --project "$FIREBASE_PROJECT_ID_RESOLVED" \
+            --data-file "$RUNNER_TEMP/resend_api_key.txt"
+
+      - name: Deploy Firestore and Functions
+        run: firebase deploy --project "$FIREBASE_PROJECT_ID_RESOLVED" --only firestore,functions --non-interactive
 
       - name: Deploy production
         uses: FirebaseExtended/action-hosting-deploy@v0
