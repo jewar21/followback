@@ -51,6 +51,22 @@ function sanitizePushSubscription(subscription: PushSubscriptionRecord): PushSub
   }
 }
 
+function stripUndefinedDeep<T>(value: T): T {
+  if (Array.isArray(value)) {
+    return value.map((item) => stripUndefinedDeep(item)) as T
+  }
+
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value)
+        .filter(([, nestedValue]) => nestedValue !== undefined)
+        .map(([key, nestedValue]) => [key, stripUndefinedDeep(nestedValue)]),
+    ) as T
+  }
+
+  return value
+}
+
 export async function loadDatabaseFromFirestore(currentUser: User | null): Promise<AppDatabase> {
   const firestore = ensureFirestore()
   const empty = createSeedDatabase()
@@ -153,7 +169,7 @@ export async function loadDatabaseFromFirestore(currentUser: User | null): Promi
 
 export async function upsertFirestoreUser(user: User) {
   const firestore = ensureFirestore()
-  await setDoc(doc(firestore, 'users', user.uid), user)
+  await setDoc(doc(firestore, 'users', user.uid), stripUndefinedDeep(user))
 }
 
 export async function ensureFirestoreUser(user: User) {
@@ -162,7 +178,7 @@ export async function ensureFirestoreUser(user: User) {
   const snapshot = await getDoc(reference)
 
   if (!snapshot.exists()) {
-    await setDoc(reference, user)
+    await setDoc(reference, stripUndefinedDeep(user))
     return user
   }
 
@@ -175,18 +191,18 @@ export async function ensureFirestoreUser(user: User) {
     updatedAt: new Date().toISOString(),
   }
 
-  await setDoc(reference, mergedUser)
+  await setDoc(reference, stripUndefinedDeep(mergedUser))
   return mergedUser
 }
 
 export async function upsertFirestoreVenture(venture: Venture) {
   const firestore = ensureFirestore()
-  await setDoc(doc(firestore, 'ventures', venture.id), venture)
+  await setDoc(doc(firestore, 'ventures', venture.id), stripUndefinedDeep(venture))
 }
 
 export async function upsertFirestoreFavorite(favorite: Favorite) {
   const firestore = ensureFirestore()
-  await setDoc(doc(firestore, 'favorites', favorite.id), favorite)
+  await setDoc(doc(firestore, 'favorites', favorite.id), stripUndefinedDeep(favorite))
 }
 
 export async function deleteFirestoreFavorite(favoriteId: string) {
@@ -196,35 +212,35 @@ export async function deleteFirestoreFavorite(favoriteId: string) {
 
 export async function upsertFirestoreFollowAction(action: FollowAction) {
   const firestore = ensureFirestore()
-  await setDoc(doc(firestore, 'followActions', action.id), action)
+  await setDoc(doc(firestore, 'followActions', action.id), stripUndefinedDeep(action))
 }
 
 export async function upsertFirestoreNetworkClick(click: NetworkClick) {
   const firestore = ensureFirestore()
-  await setDoc(doc(firestore, 'networkClicks', click.id), click)
+  await setDoc(doc(firestore, 'networkClicks', click.id), stripUndefinedDeep(click))
 }
 
 export async function upsertFirestoreAnalyticsEvent(event: AnalyticsEvent) {
   const firestore = ensureFirestore()
-  await setDoc(doc(firestore, 'analyticsEvents', event.id), event)
+  await setDoc(doc(firestore, 'analyticsEvents', event.id), stripUndefinedDeep(event))
 }
 
 export async function upsertFirestoreReport(report: Report) {
   const firestore = ensureFirestore()
-  await setDoc(doc(firestore, 'reports', report.id), report)
+  await setDoc(doc(firestore, 'reports', report.id), stripUndefinedDeep(report))
 }
 
 export async function upsertFirestoreFeedback(feedback: Feedback) {
   const firestore = ensureFirestore()
-  await setDoc(doc(firestore, 'feedback', feedback.id), feedback)
+  await setDoc(doc(firestore, 'feedback', feedback.id), stripUndefinedDeep(feedback))
 }
 
 export async function upsertFirestoreNotification(notification: AppNotification) {
   const firestore = ensureFirestore()
-  await setDoc(doc(firestore, 'notifications', notification.id), notification)
+  await setDoc(doc(firestore, 'notifications', notification.id), stripUndefinedDeep(notification))
 }
 
 export async function upsertFirestorePushSubscription(subscription: PushSubscriptionRecord) {
   const firestore = ensureFirestore()
-  await setDoc(doc(firestore, 'pushSubscriptions', subscription.id), subscription)
+  await setDoc(doc(firestore, 'pushSubscriptions', subscription.id), stripUndefinedDeep(subscription))
 }

@@ -174,21 +174,21 @@ export function upsertPushSubscriptionRecord(database: AppDatabase, incoming: Pu
   return next
 }
 
-function getFirstName(user: Pick<User, 'displayName' | 'email'>) {
+function getDisplayName(user: Pick<User, 'displayName' | 'email'>) {
   const nameCandidate = user.displayName.trim() || user.email.split('@')[0] || 'emprendedora'
-  return nameCandidate.split(/\s+/)[0] ?? 'emprendedora'
+  return nameCandidate || 'emprendedora'
 }
 
 function buildLifecycleNotification(user: User, kind: LifecycleNotificationKind): AppNotification {
   const timestamp = new Date().toISOString()
-  const firstName = getFirstName(user)
+  const displayName = getDisplayName(user)
 
   if (kind === 'welcome') {
     return {
       id: `system-welcome-${user.uid}`,
       userId: user.uid,
-      title: `Gracias por sumarte, ${firstName}`,
-      message: `${firstName}, gracias por hacer parte de la comunidad Voseguime. Completá tu perfil para que tu emprendimiento quede visible y otras personas puedan encontrarte.`,
+      title: `Gracias por sumarte, ${displayName}`,
+      message: `${displayName}, gracias por hacer parte de la comunidad Voseguime. Completá tu perfil para que tu emprendimiento quede visible y otras personas puedan encontrarte.`,
       kind: 'system',
       channel: 'in_app',
       ctaUrl: '/onboarding',
@@ -201,8 +201,8 @@ function buildLifecycleNotification(user: User, kind: LifecycleNotificationKind)
   return {
     id: `system-onboarding-${user.uid}`,
     userId: user.uid,
-    title: `Tu perfil ya está listo, ${firstName}`,
-    message: `${firstName}, gracias por completar tu onboarding. Ya podés explorar la comunidad, revisar notificaciones y seguir mejorando tu perfil cuando quieras.`,
+    title: `Tu perfil ya está listo, ${displayName}`,
+    message: `${displayName}, gracias por completar tu onboarding. Ya podés explorar la comunidad, revisar notificaciones y seguir mejorando tu perfil cuando quieras.`,
     kind: 'system',
     channel: 'in_app',
     ctaUrl: '/dashboard',
