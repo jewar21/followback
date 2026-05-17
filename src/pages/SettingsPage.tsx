@@ -41,6 +41,11 @@ export function SettingsPage() {
 
   const currentUserId = currentUser.uid
 
+  function pushButtonLabel(syncing: boolean, status: string | undefined) {
+    if (syncing) return 'Configurando...'
+    return status === 'enabled' ? 'Refrescar push' : 'Activar push'
+  }
+
   async function handleEnablePush() {
     setSyncingPush(true)
 
@@ -71,52 +76,54 @@ export function SettingsPage() {
           <p>{currentUser.email}. Aqui puedes completar tu perfil, dejar feedback y preparar tu navegador para recibir avisos futuros.</p>
         </div>
 
-        <section className="panel settings-callout">
-          <div>
-            <strong>¿Encontraste algo para mejorar?</strong>
-            <p className="muted-text">Estamos aplicando cambios en la app y nos sirve mucho saber si ya actualizaste tus datos o si algo te esta frenando.</p>
-          </div>
-          <Link className="button button--ghost" to="/feedback">
-            Dejar feedback
-          </Link>
-        </section>
+        <div className="page-sections">
+          <section className="panel settings-callout">
+            <div>
+              <strong>¿Encontraste algo para mejorar?</strong>
+              <p className="muted-text">Estamos aplicando cambios en la app y nos sirve mucho saber si ya actualizaste tus datos o si algo te esta frenando.</p>
+            </div>
+            <Link className="button button--ghost" to="/feedback">
+              Dejar feedback
+            </Link>
+          </section>
 
-        <section className="panel settings-callout">
-          <div>
-            <strong>Notificaciones del navegador</strong>
-            <p className="muted-text">
-              Estado actual: {pushSubscriptionStatusLabels[currentSubscription?.status ?? 'pending']}. Si autorizas este navegador, quedara listo para recibir push cuando habilitemos el envio desde backend.
-            </p>
-            {currentSubscription?.lastError ? <p className="muted-text">{currentSubscription.lastError}</p> : null}
-          </div>
-          <button className="button button--primary" onClick={() => void handleEnablePush()} disabled={syncingPush}>
-            {syncingPush ? 'Configurando...' : currentSubscription?.status === 'enabled' ? 'Refrescar push' : 'Activar push'}
-          </button>
-        </section>
+          <section className="panel settings-callout">
+            <div>
+              <strong>Notificaciones del navegador</strong>
+              <p className="muted-text">
+                Estado actual: {pushSubscriptionStatusLabels[currentSubscription?.status ?? 'pending']}. Si autorizas este navegador, quedara listo para recibir push cuando habilitemos el envio desde backend.
+              </p>
+              {currentSubscription?.lastError ? <p className="muted-text">{currentSubscription.lastError}</p> : null}
+            </div>
+            <button className="button button--primary" onClick={() => void handleEnablePush()} disabled={syncingPush}>
+              {pushButtonLabel(syncingPush, currentSubscription?.status)}
+            </button>
+          </section>
 
-        {currentVenture ? (
-          <VentureForm
-            initialValues={ventureToFormValues(currentVenture)}
-            submitLabel="Guardar cambios"
-            mode="full"
-            onSubmit={(values) => {
-              try {
-                const venture = updateVenture(currentVenture.id, values)
-                pushToast('Emprendimiento actualizado.', 'success')
-                navigate(`/v/${venture.slug}`)
-              } catch (error) {
-                pushToast(error instanceof Error ? error.message : 'No fue posible guardar.', 'danger')
-              }
-            }}
-          />
-        ) : (
-          <EmptyState
-            title="Aun no tienes emprendimiento"
-            description="Puedes dejar las notificaciones listas desde ahora y completar luego el onboarding para publicar tu perfil."
-            ctaLabel="Ir a onboarding"
-            ctaTo="/onboarding"
-          />
-        )}
+          {currentVenture ? (
+            <VentureForm
+              initialValues={ventureToFormValues(currentVenture)}
+              submitLabel="Guardar cambios"
+              mode="full"
+              onSubmit={(values) => {
+                try {
+                  const venture = updateVenture(currentVenture.id, values)
+                  pushToast('Emprendimiento actualizado.', 'success')
+                  navigate(`/v/${venture.slug}`)
+                } catch (error) {
+                  pushToast(error instanceof Error ? error.message : 'No fue posible guardar.', 'danger')
+                }
+              }}
+            />
+          ) : (
+            <EmptyState
+              title="Aun no tienes emprendimiento"
+              description="Puedes dejar las notificaciones listas desde ahora y completar luego el onboarding para publicar tu perfil."
+              ctaLabel="Ir a onboarding"
+              ctaTo="/onboarding"
+            />
+          )}
+        </div>
       </div>
     </div>
   )

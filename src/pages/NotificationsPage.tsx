@@ -25,26 +25,27 @@ export function NotificationsPage() {
           <p>Centraliza avisos del equipo, recordatorios de onboarding y mensajes que luego tambien pueden escalarse a push.</p>
         </div>
 
-        <section className="panel admin-toolbar">
-          <div>
-            <strong>{unreadCount} sin leer</strong>
-            <p className="muted-text">Las notificaciones administrativas quedan visibles aqui aunque el navegador no permita push.</p>
-          </div>
-          <button className="button button--ghost" onClick={() => markAllNotificationsRead()} disabled={unreadCount === 0}>
-            Marcar todo como leido
-          </button>
-        </section>
+        <div className="page-sections">
+          <section className="panel admin-toolbar">
+            <div>
+              <strong>{unreadCount} sin leer</strong>
+              <p className="muted-text">Las notificaciones administrativas quedan visibles aqui aunque el navegador no permita push.</p>
+            </div>
+            <button className="button button--ghost" onClick={() => markAllNotificationsRead()} disabled={unreadCount === 0}>
+              Marcar todo como leido
+            </button>
+          </section>
 
-        {notifications.length === 0 ? (
-          <EmptyState
-            title="Aun no tienes notificaciones"
-            description="Cuando el equipo publique avisos internos o tengamos mensajes para tu cuenta, apareceran aqui."
-            ctaLabel="Ir a explorar"
-            ctaTo="/discover"
-          />
-        ) : (
-          <section className="stack">
-            {notifications.map((notification) => (
+          {notifications.length === 0 ? (
+            <EmptyState
+              title="Aun no tienes notificaciones"
+              description="Cuando el equipo publique avisos internos o tengamos mensajes para tu cuenta, apareceran aqui."
+              ctaLabel="Ir a explorar"
+              ctaTo="/discover"
+            />
+          ) : (
+            <section className="stack">
+              {notifications.map((notification) => (
               <article
                 key={notification.id}
                 className={`panel notification-card ${notification.status === 'unread' ? 'notification-card--unread' : ''}`}
@@ -77,6 +78,7 @@ export function NotificationsPage() {
             ))}
           </section>
         )}
+        </div>
       </div>
     </div>
   )
