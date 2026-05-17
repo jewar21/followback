@@ -77,7 +77,10 @@ service cloud.firestore {
         && request.resource.data.userId == request.auth.uid;
 
       allow read, update, delete: if signedIn()
-        && resource.data.userId == request.auth.uid;
+        && (
+          resource.data.userId == request.auth.uid
+          || isAdmin()
+        );
     }
 
     match /networkClicks/{clickId} {
