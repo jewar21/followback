@@ -880,6 +880,18 @@ small { color: var(--muted); font-size: 0.8rem; }
 .page-sections { display: grid; gap: 1.25rem; }
 .page-heading { /* spacing handled by parent .container grid gap */ }
 
+/* Venture form — grid puts breathing room between every direct child section */
+.venture-form {
+  display: grid;
+  gap: 1.5rem;
+}
+
+/* Grid handles vertical spacing, so reset the old margin; keep border + inner padding */
+.venture-form .panel-section + .panel-section {
+  margin-top: 0;
+  padding-top: 0.85rem;
+}
+
 /* ─────────────────────────────────────────
    ONBOARDING / FEEDBACK / ADMIN
 ───────────────────────────────────────── */

@@ -1,13 +1,14 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { socialNetworkLabels, ventureCategories } from '../lib/constants'
+import { countries, getCitiesForCountry } from '../lib/geo'
 import { readFileAsDataUrl } from '../services/uploadService'
 import type { VentureFormValues } from '../types/forms'
 
 type VentureFormProps = {
-  initialValues: VentureFormValues
-  submitLabel: string
-  onSubmit: (values: VentureFormValues) => void
-  mode?: 'onboarding' | 'full'
+  readonly initialValues: VentureFormValues
+  readonly submitLabel: string
+  readonly onSubmit: (values: VentureFormValues) => void
+  readonly mode?: 'onboarding' | 'full'
 }
 
 const primaryNetworkFields = ['instagram', 'tiktok', 'website', 'whatsapp'] as const
@@ -18,6 +19,7 @@ export function VentureForm({ initialValues, submitLabel, onSubmit, mode = 'full
   const [uploading, setUploading] = useState(false)
   const [showExtraFields, setShowExtraFields] = useState(mode === 'full')
   const isOnboarding = mode === 'onboarding'
+  const citySuggestions = useMemo(() => getCitiesForCountry(values.country), [values.country])
 
   async function handleImageUpload(event: React.ChangeEvent<HTMLInputElement>, field: 'logoURL' | 'coverURL') {
     const file = event.target.files?.[0]
@@ -76,18 +78,18 @@ export function VentureForm({ initialValues, submitLabel, onSubmit, mode = 'full
             required
             value={values.name}
             onChange={(event) => setValues((current) => ({ ...current, name: event.target.value }))}
-            placeholder="Cafe Arcana"
+            placeholder="Café Arcana"
           />
         </label>
 
         <label className="field">
-          <span>Categoria</span>
+          <span>Categoría</span>
           <select
             required
             value={values.category}
             onChange={(event) => setValues((current) => ({ ...current, category: event.target.value }))}
           >
-            <option value="">Selecciona una categoria</option>
+            <option value="">Seleccioná una categoría</option>
             {ventureCategories.map((category) => (
               <option key={category} value={category}>
                 {category}
@@ -97,26 +99,41 @@ export function VentureForm({ initialValues, submitLabel, onSubmit, mode = 'full
         </label>
 
         <label className="field">
-          <span>Pais</span>
-          <input
+          <span>País</span>
+          <select
             required
             value={values.country}
-            onChange={(event) => setValues((current) => ({ ...current, country: event.target.value }))}
-            placeholder="Colombia"
-          />
+            onChange={(event) =>
+              setValues((current) => ({ ...current, country: event.target.value, city: '' }))
+            }
+          >
+            <option value="">Seleccioná un país</option>
+            {countries.map((country) => (
+              <option key={country.isoCode} value={country.name}>
+                {country.name}
+              </option>
+            ))}
+          </select>
         </label>
 
         <label className="field">
           <span>Ciudad</span>
           <input
+            list="city-suggestions"
             value={values.city}
             onChange={(event) => setValues((current) => ({ ...current, city: event.target.value }))}
-            placeholder="Bogota"
+            placeholder={values.country ? 'Escribí o seleccioná una ciudad' : 'Primero elegí un país'}
+            disabled={!values.country || values.country === 'Otro'}
           />
+          <datalist id="city-suggestions">
+            {citySuggestions.map((city) => (
+              <option key={city} value={city} />
+            ))}
+          </datalist>
         </label>
 
         <label className="field field--full">
-          <span>Descripcion corta</span>
+          <span>Descripción corta</span>
           <textarea
             rows={4}
             maxLength={240}
@@ -168,11 +185,11 @@ export function VentureForm({ initialValues, submitLabel, onSubmit, mode = 'full
             <h3>Datos complementarios</h3>
             <div className="form-grid">
               <label className="field">
-                <span>Subcategoria</span>
+                <span>Subcategoría</span>
                 <input
                   value={values.subcategory}
                   onChange={(event) => setValues((current) => ({ ...current, subcategory: event.target.value }))}
-                  placeholder="Cafe de especialidad"
+                  placeholder="Café de especialidad"
                 />
               </label>
 
@@ -232,10 +249,10 @@ export function VentureForm({ initialValues, submitLabel, onSubmit, mode = 'full
           </section>
 
           <section className="panel-section">
-            <h3>Contacto publico</h3>
+            <h3>Contacto público</h3>
             <div className="form-grid">
               <label className="field">
-                <span>Email publico</span>
+                <span>Email público</span>
                 <input
                   type="email"
                   value={values.contact.publicEmail}
@@ -245,7 +262,7 @@ export function VentureForm({ initialValues, submitLabel, onSubmit, mode = 'full
               </label>
 
               <label className="field">
-                <span>Telefono</span>
+                <span>Teléfono</span>
                 <input
                   value={values.contact.phone}
                   onChange={(event) => updateContact('phone', event.target.value)}
