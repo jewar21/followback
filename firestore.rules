@@ -69,6 +69,31 @@ service cloud.firestore {
         ]);
     }
 
+    function isSafeLifecycleNotificationCreate(notificationId) {
+      return signedIn()
+        && request.resource.data.id == notificationId
+        && request.resource.data.userId == request.auth.uid
+        && (
+          notificationId == "system-welcome-" + request.auth.uid
+          || notificationId == "system-onboarding-" + request.auth.uid
+        )
+        && request.resource.data.kind == "system"
+        && request.resource.data.channel == "in_app"
+        && request.resource.data.status == "unread"
+        && request.resource.data.keys().hasOnly([
+          "id",
+          "userId",
+          "title",
+          "message",
+          "kind",
+          "channel",
+          "ctaUrl",
+          "status",
+          "createdAt",
+          "updatedAt",
+        ]);
+    }
+
     match /users/{userId} {
       allow read: if isOwner(userId) || isAdmin();
       allow create: if isSafeSelfUserCreate(userId);
@@ -170,7 +195,7 @@ service cloud.firestore {
     }
 
     match /notifications/{notificationId} {
-      allow create: if isAdmin();
+      allow create: if isAdmin() || isSafeLifecycleNotificationCreate(notificationId);
 
       allow read: if signedIn()
         && (
@@ -179,6 +204,11 @@ service cloud.firestore {
         );
 
       allow update: if isAdmin()
+        || (
+          signedIn()
+          && resource.data.userId == request.auth.uid
+          && request.resource.data == resource.data
+        )
         || (
           signedIn()
           && resource.data.userId == request.auth.uid

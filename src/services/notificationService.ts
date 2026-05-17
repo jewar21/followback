@@ -6,6 +6,8 @@ import type {
   User,
 } from '../types/models'
 
+type LifecycleNotificationKind = 'welcome' | 'onboarding_completed'
+
 function isAudienceMatch(
   user: User,
   audience: AnnouncementAudience,
@@ -170,4 +172,70 @@ export function upsertPushSubscriptionRecord(database: AppDatabase, incoming: Pu
   }
 
   return next
+}
+
+function getFirstName(user: Pick<User, 'displayName' | 'email'>) {
+  const nameCandidate = user.displayName.trim() || user.email.split('@')[0] || 'emprendedora'
+  return nameCandidate.split(/\s+/)[0] ?? 'emprendedora'
+}
+
+function buildLifecycleNotification(user: User, kind: LifecycleNotificationKind): AppNotification {
+  const timestamp = new Date().toISOString()
+  const firstName = getFirstName(user)
+
+  if (kind === 'welcome') {
+    return {
+      id: `system-welcome-${user.uid}`,
+      userId: user.uid,
+      title: `Gracias por sumarte, ${firstName}`,
+      message: `${firstName}, gracias por hacer parte de la comunidad Voseguime. Completá tu perfil para que tu emprendimiento quede visible y otras personas puedan encontrarte.`,
+      kind: 'system',
+      channel: 'in_app',
+      ctaUrl: '/onboarding',
+      status: 'unread',
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    }
+  }
+
+  return {
+    id: `system-onboarding-${user.uid}`,
+    userId: user.uid,
+    title: `Tu perfil ya está listo, ${firstName}`,
+    message: `${firstName}, gracias por completar tu onboarding. Ya podés explorar la comunidad, revisar notificaciones y seguir mejorando tu perfil cuando quieras.`,
+    kind: 'system',
+    channel: 'in_app',
+    ctaUrl: '/dashboard',
+    status: 'unread',
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  }
+}
+
+export function ensureUserLifecycleNotification(
+  database: AppDatabase,
+  params: {
+    user: User
+    kind: LifecycleNotificationKind
+  },
+) {
+  const notificationId =
+    params.kind === 'welcome' ? `system-welcome-${params.user.uid}` : `system-onboarding-${params.user.uid}`
+  const existingNotification = database.notifications.find((notification) => notification.id === notificationId)
+
+  if (existingNotification) {
+    return {
+      database,
+      notification: null,
+    }
+  }
+
+  const notification = buildLifecycleNotification(params.user, params.kind)
+  return {
+    database: {
+      ...database,
+      notifications: [notification, ...database.notifications],
+    },
+    notification,
+  }
 }

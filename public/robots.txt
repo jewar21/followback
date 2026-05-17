@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+Allow: /discover
+Allow: /v/
+Allow: /network-map
+Allow: /login
+
+Disallow: /dashboard
+Disallow: /favorites
+Disallow: /feedback
+Disallow: /notifications
+Disallow: /settings
+Disallow: /onboarding
+Disallow: /admin
+Disallow: /ventures/
+
+Sitemap: https://voseguime.com/sitemap.xml

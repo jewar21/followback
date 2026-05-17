@@ -2,13 +2,70 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Preconnect for Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Primary meta -->
+    <title>Voseguime — Directorio de emprendimientos</title>
     <meta
       name="description"
       content="Voseguime: directorio de emprendimientos donde marcas, artistas y negocios comparten sus redes sociales para conectar y crecer en comunidad."
     />
-    <title>Voseguime</title>
+    <link rel="canonical" href="https://voseguime.com" />
+    <meta name="theme-color" content="#FD7B41" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Voseguime" />
+    <meta property="og:locale" content="es_CO" />
+    <meta property="og:url" content="https://voseguime.com" />
+    <meta property="og:title" content="Voseguime — Directorio de emprendimientos" />
+    <meta
+      property="og:description"
+      content="Descubrí emprendimientos, conectá con sus redes y crecé en comunidad. La plataforma donde marcas, artistas y negocios emergentes se hacen visibles."
+    />
+    <meta property="og:image" content="https://voseguime.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Voseguime — Directorio de emprendimientos" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Voseguime — Directorio de emprendimientos" />
+    <meta
+      name="twitter:description"
+      content="Descubrí emprendimientos, conectá con sus redes y crecé en comunidad."
+    />
+    <meta name="twitter:image" content="https://voseguime.com/og-image.png" />
+
+    <!-- JSON-LD structured data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Voseguime",
+        "url": "https://voseguime.com",
+        "description": "Directorio de emprendimientos donde marcas, artistas y negocios comparten sus redes sociales para conectar y crecer en comunidad.",
+        "inLanguage": "es",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://voseguime.com/discover?q={search_term_string}"
+          },
+          "query-input": "required name=search_term_string"
+        }
+      }
+    </script>
+
+    <!-- Anti-flash theme init -->
     <script>
       (function () {
         var stored = localStorage.getItem('voseguime-theme')

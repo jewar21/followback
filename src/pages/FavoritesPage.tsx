@@ -26,7 +26,7 @@ export function FavoritesPage() {
           <FavoritesList
             ventures={favoriteVentures}
             isFavorite={isFavorite}
-            onToggleFavorite={(ventureId) => toggleFavorite(ventureId)}
+            onToggleFavorite={toggleFavorite}
           />
         )}
       </div>

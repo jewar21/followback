@@ -8,12 +8,18 @@ import { EmptyState } from '../components/EmptyState'
 import { NetworkFilter } from '../components/NetworkFilter'
 import { VentureCard } from '../components/VentureCard'
 import { useFavorites } from '../hooks/useFavorites'
+import { useSEO } from '../hooks/useSEO'
 import { useToast } from '../hooks/useToast'
 import { filterVentures } from '../services/ventureService'
 import { defaultVentureFilters } from '../types/forms'
 
 export function DiscoverPage() {
   const navigate = useNavigate()
+  useSEO({
+    title: 'Explorar emprendimientos',
+    description: 'Explorá el directorio completo de emprendimientos. Filtrá por categoría, ciudad, redes y más para encontrar marcas y creadores de tu comunidad.',
+    path: '/discover',
+  })
   const [filters, setFilters] = useState(defaultVentureFilters)
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
   const { currentUser, currentVenture, publishedVentures, toggleFavorite, createFollowAction } = useAppData()

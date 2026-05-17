@@ -4,9 +4,15 @@ import { CategoryFilter } from '../components/CategoryFilter'
 import { CityFilter } from '../components/CityFilter'
 import { NetworkFilter } from '../components/NetworkFilter'
 import { NetworkMap } from '../components/NetworkMap'
+import { useSEO } from '../hooks/useSEO'
 
 export function NetworkMapPage() {
   const { database, publishedVentures } = useAppData()
+  useSEO({
+    title: 'Mapa de comunidad',
+    description: 'Visualizá las conexiones entre emprendimientos de la comunidad. Explorá nodos, redes y señales de reciprocidad en el ecosistema Voseguime.',
+    path: '/network-map',
+  })
   const [category, setCategory] = useState('')
   const [city, setCity] = useState('')
   const [network, setNetwork] = useState('')

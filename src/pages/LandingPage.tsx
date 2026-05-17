@@ -1,9 +1,15 @@
 import { ArrowRight, Globe2, HeartHandshake, Network } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { useSEO } from '../hooks/useSEO'
 import { useVentures } from '../hooks/useVentures'
 
 export function LandingPage() {
   const ventures = useVentures()
+  useSEO({
+    title: 'Directorio de emprendimientos',
+    description: 'Descubrí emprendimientos, conectá con sus redes y crecé en comunidad. La plataforma donde marcas, artistas y negocios emergentes se hacen visibles.',
+    path: '/',
+  })
 
   return (
     <div className="page">

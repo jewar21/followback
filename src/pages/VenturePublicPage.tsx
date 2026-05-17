@@ -7,9 +7,10 @@ import { FollowBackButton } from '../components/FollowBackButton'
 import { ReportModal } from '../components/ReportModal'
 import { VentureSocialLinks } from '../components/VentureSocialLinks'
 import { useFavorites } from '../hooks/useFavorites'
+import { useSEO } from '../hooks/useSEO'
 import { useToast } from '../hooks/useToast'
 import { useVenture } from '../hooks/useVenture'
-import { formatDateLabel, getAvailableNetworks } from '../lib/utils'
+import { formatDateLabel, getFollowableNetworks } from '../lib/utils'
 
 export function VenturePublicPage() {
   const venture = useVenture()
@@ -22,6 +23,15 @@ export function VenturePublicPage() {
     trackProfileView(ventureId)
   })
   const ventureId = venture?.id
+
+  useSEO({
+    title: venture ? venture.name : 'Emprendimiento',
+    description: venture
+      ? `${venture.description} — Seguí a ${venture.name} en Voseguime y conectá con su comunidad.`
+      : 'Descubrí este emprendimiento en Voseguime.',
+    path: venture ? `/v/${venture.slug}` : '/',
+    image: venture?.logoURL ?? undefined,
+  })
 
   useEffect(() => {
     if (ventureId) {
@@ -44,11 +54,7 @@ export function VenturePublicPage() {
     )
   }
 
-  const followableNetworks = getAvailableNetworks(venture.socialLinks).filter((network) =>
-    ['instagram', 'tiktok', 'facebook', 'youtube', 'spotify', 'x', 'linkedin', 'website', 'whatsapp'].includes(network),
-  ) as Array<
-    'instagram' | 'tiktok' | 'facebook' | 'youtube' | 'spotify' | 'x' | 'linkedin' | 'website' | 'whatsapp'
-  >
+  const followableNetworks = getFollowableNetworks(venture.socialLinks)
 
   return (
     <div className="page">
@@ -71,7 +77,7 @@ export function VenturePublicPage() {
           </div>
           <div className="profile-hero__meta">
             <div className="profile-meta-card">
-              <span>Ubicacion</span>
+              <span>Ubicación</span>
               <strong>
                 {venture.city || 'Ciudad por definir'}, {venture.country}
               </strong>
@@ -90,7 +96,7 @@ export function VenturePublicPage() {
         <section className="two-column-layout">
           <article className="panel">
             <div className="section-heading">
-              <h2>Redes publicas</h2>
+              <h2>Redes públicas</h2>
               <Link className="button button--ghost" to={`/ventures/${venture.slug}/networks`}>
                 Ver todo
               </Link>

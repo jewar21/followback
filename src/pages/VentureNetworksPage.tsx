@@ -40,7 +40,7 @@ export function VentureNetworksPage() {
         <div className="page-heading">
           <span className="eyebrow">Networks</span>
           <h1>{venture.name}</h1>
-          <p>Una ficha rapida para abrir todas las redes publicas del emprendimiento.</p>
+          <p>Una ficha rápida para abrir todas las redes públicas del emprendimiento.</p>
         </div>
         <section className="panel">
           <VentureSocialLinks
@@ -49,7 +49,7 @@ export function VentureNetworksPage() {
           />
           <div className="button-row">
             <Link className="button button--ghost" to={`/v/${venture.slug}`}>
-              Volver al perfil publico
+              Volver al perfil público
             </Link>
           </div>
         </section>

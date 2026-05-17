@@ -182,7 +182,7 @@ export function AdminPage() {
             <section className="panel">
               <div className="section-heading section-heading--stack">
                 <div>
-                  <h2>Campana interna</h2>
+                  <h2>Campaña interna</h2>
                   <p>Creá avisos que quedan visibles en la bandeja de notificaciones de cada usuario aunque no tenga push activo.</p>
                 </div>
               </div>
@@ -199,7 +199,7 @@ export function AdminPage() {
                       audience: campaignAudience,
                       ctaUrl: announcementCtaUrl,
                     })
-                    pushToast(`Notificacion interna creada para ${count} usuarios.`, 'success')
+                    pushToast(`Notificación interna creada para ${count} usuarios.`, 'success')
                   } catch (error) {
                     pushToast(error instanceof Error ? error.message : 'No fue posible crear la notificacion.', 'danger')
                   }
@@ -269,7 +269,7 @@ export function AdminPage() {
                         body: campaignBody,
                         audience: campaignAudience as AdminCampaignAudience,
                       })
-                      pushToast(`Campana enviada a ${result.recipientCount} usuarios.`, 'success')
+                      pushToast(`Campaña enviada a ${result.recipientCount} usuarios.`, 'success')
                     } catch (error) {
                       pushToast(error instanceof Error ? error.message : 'No fue posible enviar la campana.', 'danger')
                     }
@@ -378,13 +378,13 @@ export function AdminPage() {
                           <select
                             value={user.role}
                             onChange={(event) => {
-                              try {
+                            try {
                               updateUserAdminFields(user.uid, { role: event.target.value as typeof user.role })
                               pushToast('Rol actualizado.', 'success')
                             } catch (error) {
-                                pushToast(error instanceof Error ? error.message : 'No fue posible actualizar el rol.', 'danger')
-                              }
-                            }}
+                              pushToast(error instanceof Error ? error.message : 'No fue posible actualizar el rol.', 'danger')
+                            }
+                          }}
                             disabled={user.uid === currentUser?.uid}
                           >
                             <option value="user">user</option>
@@ -397,13 +397,13 @@ export function AdminPage() {
                           <select
                             value={user.status}
                             onChange={(event) => {
-                              try {
+                            try {
                               updateUserAdminFields(user.uid, { status: event.target.value as typeof user.status })
                               pushToast('Estado actualizado.', 'success')
-                              } catch (error) {
-                                pushToast(error instanceof Error ? error.message : 'No fue posible actualizar el estado.', 'danger')
-                              }
-                            }}
+                            } catch (error) {
+                              pushToast(error instanceof Error ? error.message : 'No fue posible actualizar el estado.', 'danger')
+                            }
+                          }}
                           >
                             <option value="active">active</option>
                             <option value="suspended">suspended</option>

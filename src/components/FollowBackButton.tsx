@@ -1,12 +1,6 @@
 import { useState } from 'react'
 import { Handshake } from 'lucide-react'
-import { socialNetworkLabels } from '../lib/constants'
-import type { SocialNetworkName } from '../types/models'
-
-type FollowableNetwork = Extract<
-  SocialNetworkName,
-  'instagram' | 'tiktok' | 'facebook' | 'youtube' | 'spotify' | 'x' | 'linkedin' | 'website' | 'whatsapp'
->
+import { socialNetworkLabels, type FollowableNetwork } from '../lib/constants'
 
 type FollowBackButtonProps = {
   networks: FollowableNetwork[]

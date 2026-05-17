@@ -234,16 +234,16 @@ export function Navbar() {
             <button className="theme-toggle" onClick={toggleTheme} aria-label="Cambiar tema">
               {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
             </button>
-              {currentUser && !isAdmin ? (
-                <Link
-                  className="notification-link"
-                  to="/notifications"
-                  aria-label="Notificaciones"
-                >
-                  <Bell size={15} />
-                  {unread > 0 ? <span className="notification-badge">{unread}</span> : null}
-                </Link>
-              ) : null}
+            {currentUser && !isAdmin ? (
+              <Link
+                className="notification-link"
+                to="/notifications"
+                aria-label="Notificaciones"
+              >
+                <Bell size={15} />
+                {unread > 0 ? <span className="notification-badge">{unread}</span> : null}
+              </Link>
+            ) : null}
             <button
               className={`menu-toggle ${menuOpen ? 'menu-toggle--open' : ''}`}
               onClick={() => setMenuOpen((v) => !v)}
@@ -291,12 +291,12 @@ export function Navbar() {
               {/* User info */}
               {currentUser ? (
                 <div className="mobile-nav-user">
-                <div className="mobile-nav-user-avatar">{initials}</div>
-                <div className="mobile-nav-user-info">
-                  <strong>{currentUser.displayName}</strong>
-                  <span>{isAdmin ? 'Panel administrativo' : currentVenture?.name ?? 'Sin emprendimiento'}</span>
+                  <div className="mobile-nav-user-avatar">{initials}</div>
+                  <div className="mobile-nav-user-info">
+                    <strong>{currentUser.displayName}</strong>
+                    <span>{isAdmin ? 'Panel administrativo' : currentVenture?.name ?? 'Sin emprendimiento'}</span>
+                  </div>
                 </div>
-              </div>
               ) : null}
 
               {/* Public links */}

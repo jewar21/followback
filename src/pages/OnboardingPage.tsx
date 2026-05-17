@@ -21,7 +21,7 @@ export function OnboardingPage() {
             <p>Empezá con nombre, categoría, país y una red principal. El resto lo podés completar después desde tu perfil.</p>
 
             <div className="onboarding-benefits">
-                <article className="mini-card">
+              <article className="mini-card">
                 <strong>Edición progresiva</strong>
                 <p>Logo, portada, contacto y redes extra quedan disponibles después.</p>
               </article>
@@ -38,7 +38,7 @@ export function OnboardingPage() {
           ) : (
             <VentureForm
               initialValues={defaultVentureFormValues}
-              submitLabel="Crear perfil basico"
+              submitLabel="Crear perfil básico"
               mode="onboarding"
               onSubmit={(values) => {
                 try {

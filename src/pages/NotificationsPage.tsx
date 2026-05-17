@@ -46,37 +46,37 @@ export function NotificationsPage() {
           ) : (
             <section className="stack">
               {notifications.map((notification) => (
-              <article
-                key={notification.id}
-                className={`panel notification-card ${notification.status === 'unread' ? 'notification-card--unread' : ''}`}
-              >
-                <div className="feedback-item__header">
-                  <div>
-                    <strong>{notification.title}</strong>
-                    <p>{formatDateLabel(notification.createdAt)}</p>
+                <article
+                  key={notification.id}
+                  className={`panel notification-card ${notification.status === 'unread' ? 'notification-card--unread' : ''}`}
+                >
+                  <div className="feedback-item__header">
+                    <div>
+                      <strong>{notification.title}</strong>
+                      <p>{formatDateLabel(notification.createdAt)}</p>
+                    </div>
+                    <span className="status-pill">{notification.channel === 'push' ? 'push' : 'in-app'}</span>
                   </div>
-                  <span className="status-pill">{notification.channel === 'push' ? 'push' : 'in-app'}</span>
-                </div>
 
-                <p>{notification.message}</p>
+                  <p>{notification.message}</p>
 
-                <div className="button-row">
-                  {notification.ctaUrl ? (
-                    <Link className="button button--ghost" to={notification.ctaUrl}>
-                      Abrir
-                    </Link>
-                  ) : null}
-                  {notification.status === 'unread' ? (
-                    <button className="button button--primary" onClick={() => markNotificationRead(notification.id)}>
-                      Marcar como leída
-                    </button>
-                  ) : (
-                    <span className="muted-text">Leída {notification.readAt ? formatDateLabel(notification.readAt) : ''}</span>
-                  )}
-                </div>
-              </article>
-            ))}
-          </section>
+                  <div className="button-row">
+                    {notification.ctaUrl ? (
+                      <Link className="button button--ghost" to={notification.ctaUrl}>
+                        Abrir
+                      </Link>
+                    ) : null}
+                    {notification.status === 'unread' ? (
+                      <button className="button button--primary" onClick={() => markNotificationRead(notification.id)}>
+                        Marcar como leída
+                      </button>
+                    ) : (
+                      <span className="muted-text">Leída {notification.readAt ? formatDateLabel(notification.readAt) : ''}</span>
+                    )}
+                  </div>
+                </article>
+              ))}
+            </section>
         )}
         </div>
       </div>

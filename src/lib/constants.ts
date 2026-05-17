@@ -3,16 +3,16 @@ import type { SocialNetworkName } from '../types/models'
 export const ventureCategories = [
   'Moda',
   'Comida',
-  'Musica',
+  'Música',
   'Arte',
-  'Tecnologia',
-  'Educacion',
-  'Diseno',
+  'Tecnología',
+  'Educación',
+  'Diseño',
   'Belleza',
   'Salud',
   'Fitness',
   'Turismo',
-  'Fotografia',
+  'Fotografía',
   'Marketing',
   'Eventos',
   'Gaming',
@@ -56,18 +56,20 @@ export const followableNetworks = [
   'linkedin',
   'website',
   'whatsapp',
-] satisfies SocialNetworkName[]
+] as const satisfies readonly SocialNetworkName[]
+
+export type FollowableNetwork = (typeof followableNetworks)[number]
 
 export const reportReasons = [
   'Spam',
-  'Contenido enganoso',
-  'Suplantacion',
+  'Contenido engañoso',
+  'Suplantación',
   'Datos desactualizados',
   'Otro',
 ]
 
 export const feedbackCategoryLabels = {
-  profile_update: 'Actualizacion de perfil',
+  profile_update: 'Actualización de perfil',
   ux: 'Experiencia de uso',
   bug: 'Problema o error',
   feature: 'Idea o mejora',
@@ -75,7 +77,7 @@ export const feedbackCategoryLabels = {
 } as const
 
 export const feedbackProfileStatusLabels = {
-  updated: 'Ya actualice mis datos',
+  updated: 'Ya actualicé mis datos',
   working_on_it: 'Estoy actualizando mis datos',
   need_help: 'Necesito ayuda para completar mi perfil',
 } as const
@@ -85,5 +87,5 @@ export const pushSubscriptionStatusLabels = {
   blocked: 'Permiso bloqueado',
   pending: 'Pendiente de permiso',
   unsupported: 'No soportado',
-  error: 'Error de configuracion',
+  error: 'Error de configuración',
 } as const

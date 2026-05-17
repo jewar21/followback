@@ -2,24 +2,19 @@ import { Link } from 'react-router-dom'
 import { FavoriteButton } from './FavoriteButton'
 import { FollowBackButton } from './FollowBackButton'
 import { VentureSocialLinks } from './VentureSocialLinks'
+import { type FollowableNetwork } from '../lib/constants'
 import { countNetworks } from '../services/ventureService'
-import { getAvailableNetworks } from '../lib/utils'
-import type { SocialNetworkName, Venture } from '../types/models'
+import { getFollowableNetworks } from '../lib/utils'
+import type { Venture } from '../types/models'
 
-type VentureCardProps = {
+type VentureCardProps = Readonly<{
   venture: Venture
   isFavorite?: boolean
   disableProtectedActions?: boolean
   onToggleFavorite?: () => void
-  onCreateFollowAction?: (
-    venture: Venture,
-    network: Extract<
-      SocialNetworkName,
-      'instagram' | 'tiktok' | 'facebook' | 'youtube' | 'spotify' | 'x' | 'linkedin' | 'website' | 'whatsapp'
-    >,
-  ) => void
+  onCreateFollowAction?: (venture: Venture, network: FollowableNetwork) => void
   onProtectedAction?: () => void
-}
+}>
 
 export function VentureCard({
   venture,
@@ -29,14 +24,7 @@ export function VentureCard({
   onCreateFollowAction,
   onProtectedAction,
 }: VentureCardProps) {
-  const followableNetworks = getAvailableNetworks(venture.socialLinks).filter((network) =>
-    ['instagram', 'tiktok', 'facebook', 'youtube', 'spotify', 'x', 'linkedin', 'website', 'whatsapp'].includes(network),
-  ) as Array<
-    Extract<
-      SocialNetworkName,
-      'instagram' | 'tiktok' | 'facebook' | 'youtube' | 'spotify' | 'x' | 'linkedin' | 'website' | 'whatsapp'
-    >
-  >
+  const followableNetworks = getFollowableNetworks(venture.socialLinks)
 
   return (
     <article className="venture-card">

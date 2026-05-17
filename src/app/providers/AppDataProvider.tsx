@@ -25,6 +25,7 @@ import { createFollowAction, updateFollowActionStatus } from '../../services/fol
 import {
   createAdminNotifications,
   createNotificationFromPushPayload,
+  ensureUserLifecycleNotification,
   markAllNotificationsRead,
   markNotificationRead,
   upsertPushSubscriptionRecord,
@@ -42,6 +43,7 @@ import {
 import type { FeedbackFormValues, VentureFormValues } from '../../types/forms'
 import type {
   AnnouncementAudience,
+  AppNotification,
   AppDatabase,
   Feedback,
   FollowActionStatus,
@@ -120,6 +122,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       try {
         const localDatabase = loadDatabase()
         let nextDatabase = await loadDatabaseFromFirestore(authUser)
+        const notificationsToPersist: AppNotification[] = []
 
         if (authUser) {
           const localUser = localDatabase.users.find((user) => user.uid === authUser.uid)
@@ -138,36 +141,64 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
           }
         }
 
-        if (cancelled) {
-          return
-        }
-
-        setDatabase(nextDatabase)
-
         if (authUser) {
           const persistedUser = nextDatabase.users.find((user) => user.uid === authUser.uid) ?? authUser
           const persistedVenture = getCurrentUserVenture(nextDatabase, authUser.uid)
           const syncedUser = await ensureFirestoreUser(persistedUser)
+          const welcomeResult = ensureUserLifecycleNotification(nextDatabase, {
+            user: syncedUser,
+            kind: 'welcome',
+          })
+
+          nextDatabase = welcomeResult.database
+
+          if (welcomeResult.notification) {
+            notificationsToPersist.push(welcomeResult.notification)
+          }
+
+          if (syncedUser.onboardingCompleted) {
+            const onboardingResult = ensureUserLifecycleNotification(nextDatabase, {
+              user: syncedUser,
+              kind: 'onboarding_completed',
+            })
+
+            nextDatabase = onboardingResult.database
+
+            if (onboardingResult.notification) {
+              notificationsToPersist.push(onboardingResult.notification)
+            }
+          }
+
+          nextDatabase = {
+            ...nextDatabase,
+            users: [
+              syncedUser,
+              ...nextDatabase.users.filter((user) => user.uid !== syncedUser.uid),
+            ],
+          }
+
+          if (cancelled) {
+            return
+          }
+
+          setDatabase(nextDatabase)
 
           if (persistedVenture) {
             await upsertFirestoreVenture(persistedVenture)
           }
 
-          if (!cancelled && syncedUser.updatedAt !== persistedUser.updatedAt) {
-            setDatabase((current) => {
-              const next = structuredClone(current)
-              const index = next.users.findIndex((user) => user.uid === syncedUser.uid)
-
-              if (index === -1) {
-                next.users.unshift(syncedUser)
-              } else {
-                next.users[index] = syncedUser
-              }
-
-              return next
-            })
+          if (notificationsToPersist.length > 0) {
+            await Promise.all(notificationsToPersist.map((notification) => upsertFirestoreNotification(notification)))
           }
+
+          return
         }
+
+        if (cancelled) {
+          return
+        }
+
+        setDatabase(nextDatabase)
       } catch (error) {
         console.error('No fue posible cargar datos desde Firestore.', error)
 
@@ -250,11 +281,23 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   function createVenture(values: VentureFormValues) {
     const user = requireUser()
     const result = createVentureRecord(upsertUser(database, user), user, values)
-    setDatabase(result.database)
+    const onboardingUser = result.database.users.find((item) => item.uid === user.uid) ?? user
+    const onboardingNotificationResult = ensureUserLifecycleNotification(result.database, {
+      user: onboardingUser,
+      kind: 'onboarding_completed',
+    })
+
+    setDatabase(onboardingNotificationResult.database)
 
     if (firebaseEnabled) {
-      const persistedUser = result.database.users.find((item) => item.uid === user.uid) ?? user
-      void Promise.all([upsertFirestoreUser(persistedUser), upsertFirestoreVenture(result.venture)]).catch((error) => {
+      const persistedUser = onboardingNotificationResult.database.users.find((item) => item.uid === user.uid) ?? user
+      const syncTasks = [upsertFirestoreUser(persistedUser), upsertFirestoreVenture(result.venture)]
+
+      if (onboardingNotificationResult.notification) {
+        syncTasks.push(upsertFirestoreNotification(onboardingNotificationResult.notification))
+      }
+
+      void Promise.all(syncTasks).catch((error) => {
         console.error('No fue posible sincronizar el emprendimiento con Firestore.', error)
       })
     }

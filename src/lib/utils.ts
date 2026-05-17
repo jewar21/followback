@@ -1,3 +1,4 @@
+import { followableNetworks, type FollowableNetwork } from './constants'
 import type { SocialLinks, SocialNetworkName } from '../types/models'
 
 export function slugify(value: string) {
@@ -29,6 +30,12 @@ export function getAvailableNetworks(socialLinks: SocialLinks) {
   return (Object.entries(socialLinks) as Array<[SocialNetworkName, string | undefined]>)
     .filter((entry) => Boolean(entry[1]?.trim()))
     .map(([network]) => network)
+}
+
+export function getFollowableNetworks(socialLinks: SocialLinks): FollowableNetwork[] {
+  return getAvailableNetworks(socialLinks).filter(
+    (n): n is FollowableNetwork => (followableNetworks as readonly string[]).includes(n),
+  )
 }
 
 export function ensureExternalUrl(url: string) {
