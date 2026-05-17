@@ -1,5 +1,6 @@
 export type UserRole = 'user' | 'admin'
 export type UserStatus = 'active' | 'suspended'
+export type AnnouncementAudience = 'all_active' | 'pending_onboarding' | 'completed_onboarding' | 'without_venture'
 export type VentureStatus = 'draft' | 'published' | 'hidden' | 'suspended'
 export type FollowActionStatus =
   | 'pending'
@@ -152,6 +153,36 @@ export type Feedback = {
   updatedAt: string
 }
 
+export type AppNotification = {
+  id: string
+  userId: string
+  title: string
+  message: string
+  kind: 'announcement' | 'system'
+  channel: 'in_app' | 'push'
+  audience?: AnnouncementAudience
+  ctaUrl?: string
+  createdBy?: string
+  status: 'unread' | 'read'
+  createdAt: string
+  updatedAt: string
+  readAt?: string
+}
+
+export type PushSubscriptionRecord = {
+  id: string
+  userId: string
+  token?: string
+  platform: 'web'
+  permission: 'granted' | 'denied' | 'default' | 'unsupported'
+  status: 'enabled' | 'blocked' | 'pending' | 'unsupported' | 'error'
+  userAgent: string
+  createdAt: string
+  updatedAt: string
+  lastTokenAt?: string
+  lastError?: string
+}
+
 export type NetworkNode = {
   id: string
   label: string
@@ -176,4 +207,6 @@ export type AppDatabase = {
   analyticsEvents: AnalyticsEvent[]
   reports: Report[]
   feedbacks: Feedback[]
+  notifications: AppNotification[]
+  pushSubscriptions: PushSubscriptionRecord[]
 }

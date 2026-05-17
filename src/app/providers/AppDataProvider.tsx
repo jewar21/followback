@@ -14,11 +14,21 @@ import {
   upsertFirestoreFavorite,
   upsertFirestoreFollowAction,
   upsertFirestoreNetworkClick,
+  upsertFirestoreNotification,
+  upsertFirestorePushSubscription,
   upsertFirestoreReport,
   upsertFirestoreUser,
   upsertFirestoreVenture,
 } from '../../services/firestoreDatabaseService'
 import { createFollowAction, updateFollowActionStatus } from '../../services/followActionService'
+import {
+  createAdminNotifications,
+  createNotificationFromPushPayload,
+  markAllNotificationsRead,
+  markNotificationRead,
+  upsertPushSubscriptionRecord,
+} from '../../services/notificationService'
+import { subscribeToForegroundMessages } from '../../services/pushMessagingService'
 import { reportVenture } from '../../services/reportService'
 import { upsertUser } from '../../services/userService'
 import {
@@ -29,7 +39,20 @@ import {
   updateVenture as updateVentureRecord,
 } from '../../services/ventureService'
 import type { FeedbackFormValues, VentureFormValues } from '../../types/forms'
-import type { AppDatabase, Feedback, FollowActionStatus, Report, SocialNetworkName, User, UserRole, UserStatus, Venture } from '../../types/models'
+import type {
+  AnnouncementAudience,
+  AppDatabase,
+  AppNotification,
+  Feedback,
+  FollowActionStatus,
+  PushSubscriptionRecord,
+  Report,
+  SocialNetworkName,
+  User,
+  UserRole,
+  UserStatus,
+  Venture,
+} from '../../types/models'
 
 type AppDataContextValue = {
   database: AppDatabase
@@ -58,6 +81,15 @@ type AppDataContextValue = {
   updateUserAdminFields: (userId: string, updates: { role?: UserRole; status?: UserStatus }) => void
   updateFeedbackAdminStatus: (feedbackId: string, status: Feedback['status']) => void
   updateReportAdminStatus: (reportId: string, status: Report['status']) => void
+  sendAdminNotification: (payload: {
+    title: string
+    message: string
+    audience: AnnouncementAudience
+    ctaUrl?: string
+  }) => number
+  markNotificationRead: (notificationId: string) => void
+  markAllNotificationsRead: () => void
+  savePushSubscription: (subscription: PushSubscriptionRecord) => void
 }
 
 const AppDataContext = createContext<AppDataContextValue | null>(null)
@@ -148,6 +180,50 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
 
   const currentVenture = getCurrentUserVenture(database, currentUser?.uid)
   const publishedVentures = getPublishedVentures(database)
+
+  useEffect(() => {
+    if (!firebaseEnabled || !currentUser) {
+      return undefined
+    }
+
+    let cancelled = false
+
+    const unsubscribePromise = subscribeToForegroundMessages((payload) => {
+      if (cancelled) {
+        return
+      }
+
+      const title = payload.notification?.title ?? payload.data?.title
+      const message = payload.notification?.body ?? payload.data?.body
+      const ctaUrl = payload.data?.ctaUrl
+
+      if (!title || !message) {
+        return
+      }
+
+      setDatabase((current) => {
+        const result = createNotificationFromPushPayload(current, {
+          userId: currentUser.uid,
+          title,
+          message,
+          ctaUrl,
+        })
+
+        void upsertFirestoreNotification(result.notification).catch((error) => {
+          console.error('No fue posible guardar la notificacion push en Firestore.', error)
+        })
+
+        return result.database
+      })
+    })
+
+    return () => {
+      cancelled = true
+      void unsubscribePromise.then((unsubscribe) => {
+        unsubscribe?.()
+      })
+    }
+  }, [currentUser, firebaseEnabled])
 
   function requireUser() {
     if (!currentUser) {
@@ -475,6 +551,81 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  function handleSendAdminNotification(payload: {
+    title: string
+    message: string
+    audience: AnnouncementAudience
+    ctaUrl?: string
+  }) {
+    const user = requireUser()
+    const result = createAdminNotifications(database, {
+      actorUserId: user.uid,
+      ...payload,
+    })
+
+    setDatabase(result.database)
+
+    if (firebaseEnabled) {
+      void Promise.all(result.notifications.map((notification) => upsertFirestoreNotification(notification))).catch((error) => {
+        console.error('No fue posible guardar la campana interna en Firestore.', error)
+      })
+    }
+
+    return result.notifications.length
+  }
+
+  function handleMarkNotificationRead(notificationId: string) {
+    const user = requireUser()
+    const updatedNotification = markNotificationRead(database, {
+      notificationId,
+      userId: user.uid,
+    })
+
+    setDatabase((current) => {
+      const next = structuredClone(current)
+      const index = next.notifications.findIndex((item) => item.id === updatedNotification.id)
+      if (index !== -1) {
+        next.notifications[index] = updatedNotification
+      }
+      return next
+    })
+
+    if (firebaseEnabled) {
+      void upsertFirestoreNotification(updatedNotification).catch((error) => {
+        console.error('No fue posible actualizar la notificacion en Firestore.', error)
+      })
+    }
+  }
+
+  function handleMarkAllNotificationsRead() {
+    const user = requireUser()
+    const result = markAllNotificationsRead(database, user.uid)
+    setDatabase(result.database)
+
+    if (firebaseEnabled && result.updated.length > 0) {
+      void Promise.all(result.updated.map((notification) => upsertFirestoreNotification(notification))).catch((error) => {
+        console.error('No fue posible marcar todas las notificaciones como leidas en Firestore.', error)
+      })
+    }
+  }
+
+  function handleSavePushSubscription(subscription: PushSubscriptionRecord) {
+    const user = requireUser()
+
+    if (subscription.userId !== user.uid) {
+      throw new Error('No puedes guardar una suscripcion push para otro usuario.')
+    }
+
+    const nextDatabase = upsertPushSubscriptionRecord(database, subscription)
+    setDatabase(nextDatabase)
+
+    if (firebaseEnabled) {
+      void upsertFirestorePushSubscription(subscription).catch((error) => {
+        console.error('No fue posible sincronizar la suscripcion push en Firestore.', error)
+      })
+    }
+  }
+
   if (firebaseEnabled && (authLoading || loading)) {
     return <LoadingState label="Sincronizando datos..." />
   }
@@ -499,6 +650,10 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
         updateUserAdminFields: handleUpdateUserAdminFields,
         updateFeedbackAdminStatus: handleUpdateFeedbackAdminStatus,
         updateReportAdminStatus: handleUpdateReportAdminStatus,
+        sendAdminNotification: handleSendAdminNotification,
+        markNotificationRead: handleMarkNotificationRead,
+        markAllNotificationsRead: handleMarkAllNotificationsRead,
+        savePushSubscription: handleSavePushSubscription,
       }}
     >
       {children}

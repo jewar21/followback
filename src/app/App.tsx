@@ -15,6 +15,7 @@ import { LandingPage } from '../pages/LandingPage'
 import { LoginPage } from '../pages/LoginPage'
 import { NetworkMapPage } from '../pages/NetworkMapPage'
 import { NotFoundPage } from '../pages/NotFoundPage'
+import { NotificationsPage } from '../pages/NotificationsPage'
 import { OnboardingPage } from '../pages/OnboardingPage'
 import { SettingsPage } from '../pages/SettingsPage'
 import { VentureNetworksPage } from '../pages/VentureNetworksPage'
@@ -43,6 +44,7 @@ export default function App() {
                   <Route path="/dashboard" element={<DashboardPage />} />
                   <Route path="/favorites" element={<FavoritesPage />} />
                   <Route path="/feedback" element={<FeedbackPage />} />
+                  <Route path="/notifications" element={<NotificationsPage />} />
                   <Route path="/settings" element={<SettingsPage />} />
                 </Route>
 

@@ -12,11 +12,13 @@ import { db, isFirebaseAvailable } from '../lib/firebase'
 import { createSeedDatabase } from '../lib/seed'
 import type {
   AnalyticsEvent,
+  AppNotification,
   AppDatabase,
   Feedback,
   Favorite,
   FollowAction,
   NetworkClick,
+  PushSubscriptionRecord,
   Report,
   User,
   Venture,
@@ -62,7 +64,16 @@ export async function loadDatabaseFromFirestore(currentUser: User | null): Promi
   const persistedUser = userSnapshot.exists() ? (userSnapshot.data() as User) : currentUser
 
   if (persistedUser.role === 'admin') {
-    const [usersSnapshot, venturesSnapshot, feedbackSnapshot, reportsSnapshot, followActionsSnapshot, favoritesSnapshot] =
+    const [
+      usersSnapshot,
+      venturesSnapshot,
+      feedbackSnapshot,
+      reportsSnapshot,
+      followActionsSnapshot,
+      favoritesSnapshot,
+      notificationsSnapshot,
+      pushSubscriptionsSnapshot,
+    ] =
       await Promise.all([
         getDocs(collection(firestore, 'users')),
         getDocs(collection(firestore, 'ventures')),
@@ -70,6 +81,8 @@ export async function loadDatabaseFromFirestore(currentUser: User | null): Promi
         getDocs(collection(firestore, 'reports')),
         getDocs(collection(firestore, 'followActions')),
         getDocs(collection(firestore, 'favorites')),
+        getDocs(collection(firestore, 'notifications')),
+        getDocs(collection(firestore, 'pushSubscriptions')),
       ])
 
     return {
@@ -80,10 +93,21 @@ export async function loadDatabaseFromFirestore(currentUser: User | null): Promi
       reports: reportsSnapshot.docs.map((snapshot) => snapshot.data() as Report),
       followActions: followActionsSnapshot.docs.map((snapshot) => snapshot.data() as FollowAction),
       favorites: favoritesSnapshot.docs.map((snapshot) => snapshot.data() as Favorite),
+      notifications: notificationsSnapshot.docs.map((snapshot) => snapshot.data() as AppNotification),
+      pushSubscriptions: pushSubscriptionsSnapshot.docs.map((snapshot) => snapshot.data() as PushSubscriptionRecord),
     }
   }
 
-  const [ownedVenturesSnapshot, favoritesSnapshot, sentActionsSnapshot, receivedActionsSnapshot, feedbackSnapshot, publishedVenturesSnapshot] =
+  const [
+    ownedVenturesSnapshot,
+    favoritesSnapshot,
+    sentActionsSnapshot,
+    receivedActionsSnapshot,
+    feedbackSnapshot,
+    publishedVenturesSnapshot,
+    notificationsSnapshot,
+    pushSubscriptionsSnapshot,
+  ] =
     await Promise.all([
       getDocs(query(collection(firestore, 'ventures'), where('ownerId', '==', currentUser.uid))),
       getDocs(query(collection(firestore, 'favorites'), where('userId', '==', currentUser.uid))),
@@ -91,6 +115,8 @@ export async function loadDatabaseFromFirestore(currentUser: User | null): Promi
       getDocs(query(collection(firestore, 'followActions'), where('toUserId', '==', currentUser.uid))),
       getDocs(query(collection(firestore, 'feedback'), where('userId', '==', currentUser.uid))),
       getDocs(query(collection(firestore, 'ventures'), where('status', '==', 'published'))),
+      getDocs(query(collection(firestore, 'notifications'), where('userId', '==', currentUser.uid))),
+      getDocs(query(collection(firestore, 'pushSubscriptions'), where('userId', '==', currentUser.uid))),
     ])
 
   const ownedVentures = ownedVenturesSnapshot.docs.map((snapshot) => snapshot.data() as Venture)
@@ -109,6 +135,8 @@ export async function loadDatabaseFromFirestore(currentUser: User | null): Promi
     favorites,
     followActions,
     feedbacks,
+    notifications: notificationsSnapshot.docs.map((snapshot) => snapshot.data() as AppNotification),
+    pushSubscriptions: pushSubscriptionsSnapshot.docs.map((snapshot) => snapshot.data() as PushSubscriptionRecord),
   }
 }
 
@@ -155,4 +183,14 @@ export async function upsertFirestoreReport(report: Report) {
 export async function upsertFirestoreFeedback(feedback: Feedback) {
   const firestore = ensureFirestore()
   await setDoc(doc(firestore, 'feedback', feedback.id), feedback)
+}
+
+export async function upsertFirestoreNotification(notification: AppNotification) {
+  const firestore = ensureFirestore()
+  await setDoc(doc(firestore, 'notifications', notification.id), notification)
+}
+
+export async function upsertFirestorePushSubscription(subscription: PushSubscriptionRecord) {
+  const firestore = ensureFirestore()
+  await setDoc(doc(firestore, 'pushSubscriptions', subscription.id), subscription)
 }

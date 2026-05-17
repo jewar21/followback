@@ -7,6 +7,7 @@ export const firebaseEnv = {
   storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: env.VITE_FIREBASE_APP_ID,
+  vapidKey: env.VITE_FIREBASE_VAPID_KEY,
 }
 
 export const requiredFirebaseEnv = {

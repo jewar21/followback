@@ -1,9 +1,10 @@
-import { Menu, Sparkles } from 'lucide-react'
+import { Bell, Menu, Sparkles } from 'lucide-react'
 import { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { useCurrentUser } from '../hooks/useCurrentUser'
 import { useCurrentVenture } from '../hooks/useCurrentVenture'
 import { useAuth } from '../hooks/useAuth'
+import { useAppData } from '../app/providers/AppDataProvider'
 
 const publicLinks = [
   { to: '/discover', label: 'Explorar' },
@@ -13,6 +14,7 @@ const publicLinks = [
 const privateLinks = [
   { to: '/dashboard', label: 'Dashboard' },
   { to: '/favorites', label: 'Favoritos' },
+  { to: '/notifications', label: 'Notificaciones' },
   { to: '/feedback', label: 'Feedback' },
   { to: '/settings', label: 'Settings' },
 ]
@@ -22,11 +24,15 @@ export function Navbar() {
   const currentUser = useCurrentUser()
   const currentVenture = useCurrentVenture()
   const { signOut } = useAuth()
+  const { database } = useAppData()
   const links = [
     ...publicLinks,
     ...(currentUser ? privateLinks : []),
     ...(currentUser?.role === 'admin' ? [{ to: '/admin', label: 'Admin' }] : []),
   ]
+  const unreadNotifications = currentUser
+    ? database.notifications.filter((notification) => notification.userId === currentUser.uid && notification.status === 'unread').length
+    : 0
 
   return (
     <header className="site-header">
@@ -65,6 +71,10 @@ export function Navbar() {
         <div className="site-actions">
           {currentUser ? (
             <>
+              <Link className="notification-link" to="/notifications" aria-label="Abrir notificaciones">
+                <Bell size={18} />
+                {unreadNotifications > 0 ? <span className="notification-badge">{unreadNotifications}</span> : null}
+              </Link>
               <div className="user-chip">
                 <strong>{currentUser.displayName}</strong>
                 <span>{currentVenture?.name ?? 'Sin emprendimiento'}</span>

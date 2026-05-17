@@ -63,7 +63,7 @@ describe('loadDatabase', () => {
     })
 
     saveDatabase(database)
-    localStorage.setItem('followback-schema-version', '2')
+    localStorage.setItem('followback-schema-version', '3')
 
     const reloaded = loadDatabase()
 

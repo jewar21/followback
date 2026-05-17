@@ -156,6 +156,35 @@ button:disabled {
   gap: 0.75rem;
 }
 
+.notification-link {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid var(--panel-border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+}
+
+.notification-badge {
+  position: absolute;
+  top: -4px;
+  right: -2px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(255, 173, 96, 0.98), rgba(255, 140, 72, 0.92));
+  color: #2a1203;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
 .user-chip {
   display: grid;
   gap: 0.15rem;
@@ -506,6 +535,10 @@ small {
   gap: 1rem;
 }
 
+.admin-filters {
+  margin-bottom: 1rem;
+}
+
 .filter-panel {
   margin-bottom: 1.4rem;
 }
@@ -706,6 +739,15 @@ small {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+}
+
+.notification-card {
+  gap: 0.85rem;
+}
+
+.notification-card--unread {
+  border-color: rgba(91, 228, 183, 0.34);
+  box-shadow: 0 0 0 1px rgba(91, 228, 183, 0.12), var(--shadow);
 }
 
 .request-card p,

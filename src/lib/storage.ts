@@ -4,7 +4,7 @@ import { createSeedDatabase } from './seed'
 const DATABASE_KEY = 'followback-db-v1'
 const SESSION_KEY = 'followback-session-v1'
 const SCHEMA_VERSION_KEY = 'followback-schema-version'
-const SCHEMA_VERSION = '2'
+const SCHEMA_VERSION = '3'
 const LEGACY_SEED_USER_IDS = new Set(['owner-cafe', 'owner-orbita', 'owner-solar', 'owner-trazo'])
 const LEGACY_SEED_VENTURE_IDS = new Set([
   'venture-cafe-arcana',
@@ -36,6 +36,10 @@ function normalizeDatabase(database: unknown) {
       : emptyDatabase.analyticsEvents,
     reports: Array.isArray(candidate.reports) ? candidate.reports : emptyDatabase.reports,
     feedbacks: Array.isArray(candidate.feedbacks) ? candidate.feedbacks : emptyDatabase.feedbacks,
+    notifications: Array.isArray(candidate.notifications) ? candidate.notifications : emptyDatabase.notifications,
+    pushSubscriptions: Array.isArray(candidate.pushSubscriptions)
+      ? candidate.pushSubscriptions
+      : emptyDatabase.pushSubscriptions,
   } satisfies AppDatabase
 }
 
@@ -62,6 +66,8 @@ function migrateDatabase(database: AppDatabase) {
     ),
     reports: database.reports.filter((report) => keptVentureIds.has(report.reportedVentureId)),
     feedbacks: database.feedbacks,
+    notifications: database.notifications,
+    pushSubscriptions: database.pushSubscriptions,
   } satisfies AppDatabase
 }
 

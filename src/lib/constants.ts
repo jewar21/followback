@@ -79,3 +79,11 @@ export const feedbackProfileStatusLabels = {
   working_on_it: 'Estoy actualizando mis datos',
   need_help: 'Necesito ayuda para completar mi perfil',
 } as const
+
+export const pushSubscriptionStatusLabels = {
+  enabled: 'Push habilitado',
+  blocked: 'Permiso bloqueado',
+  pending: 'Pendiente de permiso',
+  unsupported: 'No soportado',
+  error: 'Error de configuracion',
+} as const

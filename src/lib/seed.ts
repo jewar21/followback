@@ -26,5 +26,7 @@ export function createSeedDatabase(): AppDatabase {
     analyticsEvents: [],
     reports: [],
     feedbacks: [],
+    notifications: [],
+    pushSubscriptions: [],
   }
 }
