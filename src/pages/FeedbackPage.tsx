@@ -21,7 +21,7 @@ export function FeedbackPage() {
       <div className="container">
         <div className="page-heading">
           <span className="eyebrow">Feedback</span>
-          <h1>Ayudanos a mejorar FollowBack</h1>
+          <h1>Ayudanos a mejorar Voseguime</h1>
           <p>
             Estamos aplicando actualizaciones en la app. Cuéntanos si ya terminaste de actualizar tus datos y qué deberíamos mejorar para que el flujo sea más claro.
           </p>

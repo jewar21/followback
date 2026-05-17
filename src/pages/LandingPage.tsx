@@ -13,7 +13,7 @@ export function LandingPage() {
             <span className="eyebrow">Directorio inteligente de emprendimientos</span>
             <h1>Descubre emprendimientos, conecta con sus redes y crece en comunidad.</h1>
             <p>
-              FollowBack es una red de apoyo visible donde marcas, artistas, creadores y negocios emergentes comparten sus
+              Voseguime es una red de apoyo visible donde marcas, artistas, creadores y negocios emergentes comparten sus
               perfiles sociales para ser encontrados, seguidos y contactados sin automatizar nada.
             </p>
             <div className="button-row">

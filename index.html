@@ -1,14 +1,25 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="FollowBack helps ventures discover each other, share social networks, and build a visible support community."
+      content="Voseguime: directorio de emprendimientos donde marcas, artistas y negocios comparten sus redes sociales para conectar y crecer en comunidad."
     />
-    <title>FollowBack</title>
+    <title>Voseguime</title>
+    <script>
+      (function () {
+        var stored = localStorage.getItem('voseguime-theme')
+        var prefersDark = globalThis.matchMedia('(prefers-color-scheme: dark)').matches
+        var defaultTheme = prefersDark ? 'dark' : 'light'
+        var theme = stored === 'light' || stored === 'dark'
+          ? stored
+          : defaultTheme
+        document.documentElement.dataset.theme = theme
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -49,7 +49,7 @@ export function DiscoverPage() {
     }
 
     if (!currentVenture) {
-      pushToast('Completa tu emprendimiento para usar FollowBack.', 'neutral')
+      pushToast('Completa tu emprendimiento para usar Voseguime.', 'neutral')
       navigate('/onboarding')
       return false
     }

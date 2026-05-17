@@ -124,7 +124,7 @@ export function VenturePublicPage() {
                 disabled={!currentUser || !currentVenture || currentVenture?.id === venture.id}
                 onSelect={(network) => {
                   if (!currentUser || !currentVenture) {
-                    pushToast('Completa tu perfil para usar FollowBack.', 'neutral')
+                    pushToast('Completa tu perfil para usar Voseguime.', 'neutral')
                     return
                   }
 

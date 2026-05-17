@@ -5,7 +5,7 @@ export function Footer() {
     <footer className="site-footer">
       <div className="container site-footer__inner">
         <div>
-          <strong>FollowBack</strong>
+          <strong>Voseguime</strong>
           <p>Descubre emprendimientos, abre sus redes y construye una comunidad de apoyo visible.</p>
         </div>
         <div className="footer-links">

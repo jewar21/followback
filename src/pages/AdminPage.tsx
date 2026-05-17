@@ -21,22 +21,22 @@ export function AdminPage() {
     sendAdminNotification,
   } = useAppData()
   const { pushToast } = useToast()
-  const [campaignSubject, setCampaignSubject] = useState('Actualiza tu perfil en FollowBack y cuentanos como mejorar')
+  const [campaignSubject, setCampaignSubject] = useState('Actualiza tu perfil en Voseguime y cuentanos como mejorar')
   const [campaignBody, setCampaignBody] = useState(
     [
       'Hola,',
       '',
-      'Estamos aplicando mejoras en FollowBack para que los perfiles sean mas faciles de completar, explorar y mantener actualizados.',
+      'Estamos aplicando mejoras en Voseguime para que los perfiles sean mas faciles de completar, explorar y mantener actualizados.',
       '',
       'Te pedimos por favor entrar de nuevo, revisar tu informacion y completar tu emprendimiento para dejarlo disponible con mejores datos para la comunidad.',
       '',
       'Tambien abrimos una seccion de Feedback dentro de la app para que nos cuentes si ya terminaste de actualizar tus datos, si encontraste algun bloqueo o que mejoras te gustaria ver.',
       '',
-      'Gracias por ayudarnos a mejorar FollowBack.',
+      'Gracias por ayudarnos a mejorar Voseguime.',
     ].join('\n'),
   )
   const [campaignAudience, setCampaignAudience] = useState<AnnouncementAudience>('pending_onboarding')
-  const [announcementTitle, setAnnouncementTitle] = useState('Tienes novedades pendientes en FollowBack')
+  const [announcementTitle, setAnnouncementTitle] = useState('Tienes novedades pendientes en Voseguime')
   const [announcementMessage, setAnnouncementMessage] = useState(
     'Entra a la app, revisa tu perfil y deja feedback si algo te esta frenando. Este aviso quedara disponible en tu bandeja interna aunque no tengas push activo.',
   )
