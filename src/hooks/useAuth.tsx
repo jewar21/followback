@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import { createDemoUser, signInWithGoogleAccount, signOutAccount, subscribeToAuthChanges } from '../services/authService'
 import { loadSessionUser, saveSessionUser } from '../lib/storage'
 import { isFirebaseConfigured } from '../lib/env'
-import { firebaseInitError, isFirebaseAvailable } from '../lib/firebase'
+import { isFirebaseAvailable } from '../lib/firebase'
 import type { User } from '../types/models'
 
 type AuthContextValue = {
@@ -25,20 +25,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return undefined
     }
 
-    const unsubscribe = subscribeToAuthChanges((nextUser) => {
+    let cleanup: () => void = () => {}
+    let cancelled = false
+
+    void subscribeToAuthChanges((nextUser) => {
       setUser(nextUser)
       saveSessionUser(nextUser)
       setLoading(false)
     })
+      .then((unsubscribe) => {
+        if (cancelled) {
+          unsubscribe()
+          return
+        }
 
-    return unsubscribe
+        cleanup = unsubscribe
+      })
+      .catch((error) => {
+        console.error('No fue posible iniciar la suscripción de Auth.', error)
+        setLoading(false)
+      })
+
+    return () => {
+      cancelled = true
+      cleanup()
+    }
   }, [])
 
   async function signInWithGoogle() {
-    if (firebaseInitError) {
-      throw firebaseInitError
-    }
-
     const nextUser = await signInWithGoogleAccount()
     setUser(nextUser)
     saveSessionUser(nextUser)

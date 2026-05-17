@@ -1,5 +1,5 @@
 import type { MessagePayload } from 'firebase/messaging'
-import { app } from '../lib/firebase'
+import { getFirebaseApp, isFirebaseAvailable } from '../lib/firebase'
 import { firebaseEnv } from '../lib/env'
 import type { PushSubscriptionRecord } from '../types/models'
 
@@ -18,7 +18,7 @@ export async function isPushMessagingSupported() {
     return false
   }
 
-  if (!app || !firebaseEnv.vapidKey) {
+  if (!isFirebaseAvailable || !firebaseEnv.vapidKey) {
     return false
   }
 
@@ -34,7 +34,7 @@ export async function syncPushSubscription(userId: string): Promise<PushSubscrip
   const timestamp = new Date().toISOString()
   const baseRecord = createBaseRecord(userId)
   const subscriptionId = `${userId}-web`
-  const firebaseApp = app ?? undefined
+  const firebaseApp = isFirebaseAvailable ? await getFirebaseApp().catch(() => null) : null
 
   if (!(await isPushMessagingSupported()) || !firebaseApp) {
     return {
@@ -109,7 +109,7 @@ export async function syncPushSubscription(userId: string): Promise<PushSubscrip
 export async function subscribeToForegroundMessages(
   callback: (payload: MessagePayload) => void,
 ): Promise<(() => void) | undefined> {
-  const firebaseApp = app ?? undefined
+  const firebaseApp = isFirebaseAvailable ? await getFirebaseApp().catch(() => null) : null
 
   if (!(await isPushMessagingSupported()) || !firebaseApp) {
     return undefined

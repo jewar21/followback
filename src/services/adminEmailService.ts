@@ -1,5 +1,4 @@
-import { httpsCallable } from 'firebase/functions'
-import { functions, isFirebaseAvailable } from '../lib/firebase'
+import { getFirebaseFunctions, isFirebaseAvailable } from '../lib/firebase'
 
 export type AdminCampaignAudience =
   | 'all_active'
@@ -19,10 +18,14 @@ type SendAdminCampaignResult = {
 }
 
 export async function sendAdminCampaignEmail(input: SendAdminCampaignInput) {
-  if (!isFirebaseAvailable || !functions) {
+  if (!isFirebaseAvailable) {
     throw new Error('Firebase Functions no esta disponible en este entorno.')
   }
 
+  const [{ httpsCallable }, functions] = await Promise.all([
+    import('firebase/functions'),
+    getFirebaseFunctions(),
+  ])
   const callable = httpsCallable<SendAdminCampaignInput, SendAdminCampaignResult>(functions, 'sendAdminCampaignEmails')
   const result = await callable(input)
   return result.data

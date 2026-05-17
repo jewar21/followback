@@ -1,8 +1,8 @@
-import { initializeApp, type FirebaseApp } from 'firebase/app'
-import { getAuth, GoogleAuthProvider, type Auth } from 'firebase/auth'
-import { getFirestore, type Firestore } from 'firebase/firestore'
-import { getFunctions, type Functions } from 'firebase/functions'
-import { getStorage, type FirebaseStorage } from 'firebase/storage'
+import type { FirebaseApp } from 'firebase/app'
+import type { Auth, GoogleAuthProvider } from 'firebase/auth'
+import type { Firestore } from 'firebase/firestore'
+import type { Functions } from 'firebase/functions'
+import type { FirebaseStorage } from 'firebase/storage'
 import { firebaseEnv, hasFirebaseStorageBucket, isFirebaseConfigured } from './env'
 
 const firebaseConfig = {
@@ -14,29 +14,70 @@ const firebaseConfig = {
   appId: firebaseEnv.appId ?? '',
 }
 
-let app: FirebaseApp | null = null
-let auth: Auth | null = null
-let db: Firestore | null = null
-let functions: Functions | null = null
-let storage: FirebaseStorage | null = null
-let googleProvider: GoogleAuthProvider | null = null
-let firebaseInitError: Error | null = null
+let appPromise: Promise<FirebaseApp> | null = null
+let authPromise: Promise<{ auth: Auth; googleProvider: GoogleAuthProvider }> | null = null
+let firestorePromise: Promise<Firestore> | null = null
+let functionsPromise: Promise<Functions> | null = null
+let storagePromise: Promise<FirebaseStorage | null> | null = null
 
-if (isFirebaseConfigured) {
-  try {
-    app = initializeApp(firebaseConfig)
-    auth = getAuth(app)
-    db = getFirestore(app)
-    functions = getFunctions(app)
-    googleProvider = new GoogleAuthProvider()
+export const isFirebaseAvailable = isFirebaseConfigured
 
-    if (hasFirebaseStorageBucket) {
-      storage = getStorage(app)
-    }
-  } catch (error) {
-    firebaseInitError = error instanceof Error ? error : new Error('No fue posible inicializar Firebase.')
+export async function getFirebaseApp() {
+  if (!isFirebaseConfigured) {
+    throw new Error('Firebase no está configurado en este entorno.')
   }
+
+  appPromise ??= (async () => {
+    const { getApp, getApps, initializeApp } = await import('firebase/app')
+    return getApps().length > 0 ? getApp() : initializeApp(firebaseConfig)
+  })()
+
+  return appPromise
 }
 
-export { app, auth, db, functions, storage, googleProvider, firebaseInitError }
-export const isFirebaseAvailable = Boolean(app && auth && db && googleProvider)
+export async function getFirebaseAuthContext() {
+  authPromise ??= (async () => {
+    const app = await getFirebaseApp()
+    const { getAuth, GoogleAuthProvider } = await import('firebase/auth')
+    return {
+      auth: getAuth(app),
+      googleProvider: new GoogleAuthProvider(),
+    }
+  })()
+
+  return authPromise
+}
+
+export async function getFirestoreDb() {
+  firestorePromise ??= (async () => {
+    const app = await getFirebaseApp()
+    const { getFirestore } = await import('firebase/firestore')
+    return getFirestore(app)
+  })()
+
+  return firestorePromise
+}
+
+export async function getFirebaseFunctions() {
+  functionsPromise ??= (async () => {
+    const app = await getFirebaseApp()
+    const { getFunctions } = await import('firebase/functions')
+    return getFunctions(app)
+  })()
+
+  return functionsPromise
+}
+
+export async function getFirebaseStorage() {
+  if (!hasFirebaseStorageBucket) {
+    return null
+  }
+
+  storagePromise ??= (async () => {
+    const app = await getFirebaseApp()
+    const { getStorage } = await import('firebase/storage')
+    return getStorage(app)
+  })()
+
+  return storagePromise
+}

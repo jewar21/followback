@@ -1,14 +1,7 @@
 import {
-  collection,
-  deleteDoc,
-  doc,
-  getDoc,
-  getDocs,
-  query,
-  setDoc,
-  where,
-} from 'firebase/firestore'
-import { db, isFirebaseAvailable } from '../lib/firebase'
+  getFirestoreDb,
+  isFirebaseAvailable,
+} from '../lib/firebase'
 import { createSeedDatabase } from '../lib/seed'
 import type {
   AnalyticsEvent,
@@ -25,11 +18,25 @@ import type {
 } from '../types/models'
 
 function ensureFirestore() {
-  if (!isFirebaseAvailable || !db) {
+  if (!isFirebaseAvailable) {
     throw new Error('Firestore no esta disponible.')
   }
+}
 
-  return db
+type FirestoreModule = typeof import('firebase/firestore')
+
+let firestoreModulePromise: Promise<FirestoreModule> | null = null
+
+async function getFirestoreContext() {
+  ensureFirestore()
+  const firestore = await getFirestoreDb()
+  firestoreModulePromise ??= import('firebase/firestore')
+  const firestoreModule = await firestoreModulePromise
+
+  return {
+    firestore,
+    ...firestoreModule,
+  }
 }
 
 function mergeUniqueById<T extends { id: string }>(...collections: T[][]) {
@@ -68,7 +75,7 @@ function stripUndefinedDeep<T>(value: T): T {
 }
 
 export async function loadDatabaseFromFirestore(currentUser: User | null): Promise<AppDatabase> {
-  const firestore = ensureFirestore()
+  const { firestore, collection, doc, getDoc, getDocs, query, where } = await getFirestoreContext()
   const empty = createSeedDatabase()
 
   if (!currentUser) {
@@ -168,12 +175,12 @@ export async function loadDatabaseFromFirestore(currentUser: User | null): Promi
 }
 
 export async function upsertFirestoreUser(user: User) {
-  const firestore = ensureFirestore()
+  const { firestore, doc, setDoc } = await getFirestoreContext()
   await setDoc(doc(firestore, 'users', user.uid), stripUndefinedDeep(user))
 }
 
 export async function ensureFirestoreUser(user: User) {
-  const firestore = ensureFirestore()
+  const { firestore, doc, getDoc, setDoc } = await getFirestoreContext()
   const reference = doc(firestore, 'users', user.uid)
   const snapshot = await getDoc(reference)
 
@@ -196,51 +203,51 @@ export async function ensureFirestoreUser(user: User) {
 }
 
 export async function upsertFirestoreVenture(venture: Venture) {
-  const firestore = ensureFirestore()
+  const { firestore, doc, setDoc } = await getFirestoreContext()
   await setDoc(doc(firestore, 'ventures', venture.id), stripUndefinedDeep(venture))
 }
 
 export async function upsertFirestoreFavorite(favorite: Favorite) {
-  const firestore = ensureFirestore()
+  const { firestore, doc, setDoc } = await getFirestoreContext()
   await setDoc(doc(firestore, 'favorites', favorite.id), stripUndefinedDeep(favorite))
 }
 
 export async function deleteFirestoreFavorite(favoriteId: string) {
-  const firestore = ensureFirestore()
+  const { firestore, deleteDoc, doc } = await getFirestoreContext()
   await deleteDoc(doc(firestore, 'favorites', favoriteId))
 }
 
 export async function upsertFirestoreFollowAction(action: FollowAction) {
-  const firestore = ensureFirestore()
+  const { firestore, doc, setDoc } = await getFirestoreContext()
   await setDoc(doc(firestore, 'followActions', action.id), stripUndefinedDeep(action))
 }
 
 export async function upsertFirestoreNetworkClick(click: NetworkClick) {
-  const firestore = ensureFirestore()
+  const { firestore, doc, setDoc } = await getFirestoreContext()
   await setDoc(doc(firestore, 'networkClicks', click.id), stripUndefinedDeep(click))
 }
 
 export async function upsertFirestoreAnalyticsEvent(event: AnalyticsEvent) {
-  const firestore = ensureFirestore()
+  const { firestore, doc, setDoc } = await getFirestoreContext()
   await setDoc(doc(firestore, 'analyticsEvents', event.id), stripUndefinedDeep(event))
 }
 
 export async function upsertFirestoreReport(report: Report) {
-  const firestore = ensureFirestore()
+  const { firestore, doc, setDoc } = await getFirestoreContext()
   await setDoc(doc(firestore, 'reports', report.id), stripUndefinedDeep(report))
 }
 
 export async function upsertFirestoreFeedback(feedback: Feedback) {
-  const firestore = ensureFirestore()
+  const { firestore, doc, setDoc } = await getFirestoreContext()
   await setDoc(doc(firestore, 'feedback', feedback.id), stripUndefinedDeep(feedback))
 }
 
 export async function upsertFirestoreNotification(notification: AppNotification) {
-  const firestore = ensureFirestore()
+  const { firestore, doc, setDoc } = await getFirestoreContext()
   await setDoc(doc(firestore, 'notifications', notification.id), stripUndefinedDeep(notification))
 }
 
 export async function upsertFirestorePushSubscription(subscription: PushSubscriptionRecord) {
-  const firestore = ensureFirestore()
+  const { firestore, doc, setDoc } = await getFirestoreContext()
   await setDoc(doc(firestore, 'pushSubscriptions', subscription.id), stripUndefinedDeep(subscription))
 }
