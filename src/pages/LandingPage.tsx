@@ -1,13 +1,14 @@
 import { ArrowRight, Globe2, HeartHandshake, Network } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useSEO } from '../hooks/useSEO'
+import { PRIMARY_COUNTRY_NAME } from '../lib/geo'
 import { useVentures } from '../hooks/useVentures'
 
 export function LandingPage() {
-  const ventures = useVentures()
+  const ventures = useVentures().filter((venture) => venture.country === PRIMARY_COUNTRY_NAME)
   useSEO({
     title: 'Directorio de emprendimientos',
-    description: 'Descubrí emprendimientos, conectá con sus redes y crecé en comunidad. La plataforma donde marcas, artistas y negocios emergentes se hacen visibles.',
+    description: 'Descubrí emprendimientos de Colombia, conectá con sus redes y crecé en comunidad. La plataforma donde marcas, artistas y negocios emergentes se hacen visibles.',
     path: '/',
   })
 
@@ -20,7 +21,8 @@ export function LandingPage() {
             <h1>Descubrí emprendimientos, conectá con sus redes y crecé en comunidad.</h1>
             <p>
               Voseguime es una red de apoyo visible donde marcas, artistas, creadores y negocios emergentes comparten sus
-              perfiles sociales para ser encontrados, seguidos y contactados sin automatizar nada.
+              perfiles sociales para ser encontrados, seguidos y contactados sin automatizar nada. En esta etapa estamos
+              concentrados en Colombia.
             </p>
             <div className="button-row">
               <Link className="button button--primary" to="/discover">

@@ -73,7 +73,7 @@ export function SettingsPage() {
         <div className="page-heading">
           <span className="eyebrow">Settings</span>
           <h1>Cuenta, emprendimiento y notificaciones</h1>
-          <p>{currentUser.email}. Acá podés completar tu perfil, dejar feedback y preparar tu navegador para recibir avisos futuros.</p>
+          <p>{currentUser.email}. Acá podés completar tu perfil en Colombia, dejar feedback y preparar tu navegador para recibir avisos futuros.</p>
         </div>
 
         <div className="page-sections">

@@ -18,7 +18,7 @@ export function OnboardingPage() {
           <section className="page-heading onboarding-heading">
             <span className="eyebrow">Onboarding</span>
             <h1>{currentVenture ? 'Tu emprendimiento ya existe' : 'Creá tu perfil sin fricción'}</h1>
-            <p>Empezá con nombre, categoría, país y una red principal. El resto lo podés completar después desde tu perfil.</p>
+            <p>Empezá con nombre, categoría, departamento, ciudad y una red principal. Por ahora Voseguime está concentrado en Colombia.</p>
 
             <div className="onboarding-benefits">
               <article className="mini-card">

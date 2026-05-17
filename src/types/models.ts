@@ -47,6 +47,7 @@ export type Venture = {
   category: string
   subcategory?: string
   country: string
+  department?: string
   city: string
   logoURL?: string
   coverURL?: string

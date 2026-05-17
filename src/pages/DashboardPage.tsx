@@ -6,6 +6,7 @@ import { SentFollowRequests } from '../components/SentFollowRequests'
 import { useFavorites } from '../hooks/useFavorites'
 import { useFollowActions } from '../hooks/useFollowActions'
 import { useToast } from '../hooks/useToast'
+import { formatLocationLabel } from '../lib/utils'
 
 export function DashboardPage() {
   const { currentVenture, database, updateFollowActionStatus, toggleFavorite } = useAppData()
@@ -99,7 +100,7 @@ export function DashboardPage() {
                   <div>
                     <strong>{venture.name}</strong>
                     <p>
-                      {venture.category} • {venture.city}
+                      {venture.category} • {formatLocationLabel(venture)}
                     </p>
                   </div>
                   <button className="button button--ghost" onClick={() => toggleFavorite(venture.id)}>

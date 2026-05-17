@@ -1,46 +1,37 @@
-import { City, Country } from 'country-state-city'
+import { colombiaDepartments } from './colombia-locations'
 
-const SPANISH_NAMES: Record<string, string> = {
-  Mexico: 'México',
-  Brazil: 'Brasil',
-  Panama: 'Panamá',
-  Peru: 'Perú',
-  'Dominican Republic': 'República Dominicana',
-  Spain: 'España',
-  'United States': 'Estados Unidos',
-  Canada: 'Canadá',
+type CountryOption = {
+  name: string
+  isoCode: string
 }
 
-// Countries shown at the top of the list (LatAm + Iberian Peninsula + NA)
-const PRIORITY_CODES = new Set([
-  'AR', 'BO', 'BR', 'CA', 'CL', 'CO', 'CR', 'CU', 'DO', 'EC',
-  'ES', 'GT', 'HN', 'MX', 'NI', 'PA', 'PE', 'PR', 'PT', 'PY',
-  'SV', 'US', 'UY', 'VE',
-])
+export const PRIMARY_COUNTRY_NAME = 'Colombia'
+export const countries: CountryOption[] = [{ name: PRIMARY_COUNTRY_NAME, isoCode: 'CO' }]
 
-function localName(name: string): string {
-  return SPANISH_NAMES[name] ?? name
+export function hasStructuredLocationsForCountry(countryName: string) {
+  return countryName === PRIMARY_COUNTRY_NAME
 }
 
-const allCountries = Country.getAllCountries().map((c) => ({
-  name: localName(c.name),
-  isoCode: c.isoCode,
-}))
+export function getDepartmentsForCountry(countryName: string): string[] {
+  if (!hasStructuredLocationsForCountry(countryName)) {
+    return []
+  }
 
-const priorityCountries = allCountries
-  .filter((c) => PRIORITY_CODES.has(c.isoCode))
-  .sort((a, b) => a.name.localeCompare(b.name, 'es'))
+  return colombiaDepartments.map((department) => department.department)
+}
 
-const otherCountries = allCountries
-  .filter((c) => !PRIORITY_CODES.has(c.isoCode))
-  .sort((a, b) => a.name.localeCompare(b.name, 'es'))
+export function getCitiesForCountryAndDepartment(countryName: string, departmentName: string): string[] {
+  if (!hasStructuredLocationsForCountry(countryName) || !departmentName) {
+    return []
+  }
 
-export const countries = [...priorityCountries, ...otherCountries]
-
-const isoByName = new Map(countries.map((c) => [c.name, c.isoCode]))
+  return colombiaDepartments.find((department) => department.department === departmentName)?.cities ?? []
+}
 
 export function getCitiesForCountry(countryName: string): string[] {
-  const isoCode = isoByName.get(countryName)
-  if (!isoCode) return []
-  return City.getCitiesOfCountry(isoCode)?.map((c) => c.name) ?? []
+  if (!hasStructuredLocationsForCountry(countryName)) {
+    return []
+  }
+
+  return []
 }

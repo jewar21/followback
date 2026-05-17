@@ -4,20 +4,26 @@ import { useNavigate } from 'react-router-dom'
 import { useAppData } from '../app/providers/AppDataProvider'
 import { CategoryFilter } from '../components/CategoryFilter'
 import { CityFilter } from '../components/CityFilter'
+import { DepartmentFilter } from '../components/DepartmentFilter'
 import { EmptyState } from '../components/EmptyState'
 import { NetworkFilter } from '../components/NetworkFilter'
 import { VentureCard } from '../components/VentureCard'
 import { useFavorites } from '../hooks/useFavorites'
 import { useSEO } from '../hooks/useSEO'
 import { useToast } from '../hooks/useToast'
+import { PRIMARY_COUNTRY_NAME } from '../lib/geo'
 import { filterVentures } from '../services/ventureService'
 import { defaultVentureFilters } from '../types/forms'
+
+function isNonEmptyString(value: string | undefined): value is string {
+  return Boolean(value)
+}
 
 export function DiscoverPage() {
   const navigate = useNavigate()
   useSEO({
     title: 'Explorar emprendimientos',
-    description: 'Explorá el directorio completo de emprendimientos. Filtrá por categoría, ciudad, redes y más para encontrar marcas y creadores de tu comunidad.',
+    description: 'Explorá emprendimientos de Colombia. Filtrá por categoría, departamento, ciudad y redes para encontrar marcas y creadores de tu comunidad.',
     path: '/discover',
   })
   const [filters, setFilters] = useState(defaultVentureFilters)
@@ -27,20 +33,32 @@ export function DiscoverPage() {
   const { pushToast } = useToast()
 
   const filteredVentures = filterVentures(
-    publishedVentures.filter((venture) => venture.id !== currentVenture?.id),
+    publishedVentures.filter((venture) => venture.country === PRIMARY_COUNTRY_NAME && venture.id !== currentVenture?.id),
     filters,
   )
 
-  const countries = Array.from(new Set(publishedVentures.map((venture) => venture.country))).sort()
-  const availableCities = Array.from(
+  const availableDepartments = Array.from(
     new Set(
-      publishedVentures
-        .filter((venture) => !filters.country || venture.country === filters.country)
-        .map((venture) => venture.city)
-        .filter(Boolean),
+      filteredVentures
+        .map((venture) => venture.department)
+        .filter(isNonEmptyString),
     ),
   ).sort()
-  const activeAdvancedFilters = [filters.tag, filters.category, filters.country, filters.city, filters.network].filter(Boolean)
+  const availableCities = Array.from(
+    new Set(
+      filteredVentures
+        .filter((venture) => !filters.department || venture.department === filters.department)
+        .map((venture) => venture.city)
+        .filter(isNonEmptyString),
+    ),
+  ).sort()
+  const activeAdvancedFilters = [
+    filters.tag,
+    filters.category,
+    filters.department,
+    filters.city,
+    filters.network,
+  ].filter(Boolean)
 
   function resetFilters() {
     setFilters(defaultVentureFilters)
@@ -69,7 +87,7 @@ export function DiscoverPage() {
         <div className="page-heading">
           <span className="eyebrow">Discover</span>
           <h1>Explorá emprendimientos y entrá directo a sus redes</h1>
-          <p>Empezá buscando por nombre o palabra clave. Si hace falta, abrí filtros avanzados para afinar.</p>
+          <p>Empezá buscando por nombre o palabra clave. Si hace falta, filtrá por departamento, ciudad o red para afinar dentro de Colombia.</p>
         </div>
 
         <section className="panel filter-panel">
@@ -144,26 +162,17 @@ export function DiscoverPage() {
                 onChange={(value) => setFilters((current) => ({ ...current, category: value }))}
               />
 
-              <label className="field">
-                <span>Pais</span>
-                <select
-                  value={filters.country}
-                  onChange={(event) =>
-                    setFilters((current) => ({
-                      ...current,
-                      country: event.target.value,
-                      city: event.target.value === current.country ? current.city : '',
-                    }))
-                  }
-                >
-                  <option value="">Todos</option>
-                  {countries.map((country) => (
-                    <option key={country} value={country}>
-                      {country}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <DepartmentFilter
+                departments={availableDepartments}
+                value={filters.department}
+                onChange={(value) =>
+                  setFilters((current) => ({
+                    ...current,
+                    department: value,
+                    city: '',
+                  }))
+                }
+              />
 
               <CityFilter
                 cities={availableCities}
@@ -182,7 +191,7 @@ export function DiscoverPage() {
         {!showAdvancedFilters && activeAdvancedFilters.length > 0 ? (
           <section className="discover-active-filters">
             {filters.category ? <span className="tag">Categoria: {filters.category}</span> : null}
-            {filters.country ? <span className="tag">Pais: {filters.country}</span> : null}
+            {filters.department ? <span className="tag">Departamento: {filters.department}</span> : null}
             {filters.city ? <span className="tag">Ciudad: {filters.city}</span> : null}
             {filters.network ? <span className="tag">Red: {filters.network}</span> : null}
             {filters.tag ? <span className="tag">Tag: {filters.tag}</span> : null}

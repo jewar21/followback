@@ -1,6 +1,11 @@
 import { useMemo, useState } from 'react'
 import { socialNetworkLabels, ventureCategories } from '../lib/constants'
-import { countries, getCitiesForCountry } from '../lib/geo'
+import {
+  getCitiesForCountryAndDepartment,
+  getDepartmentsForCountry,
+  hasStructuredLocationsForCountry,
+  PRIMARY_COUNTRY_NAME,
+} from '../lib/geo'
 import { readFileAsDataUrl } from '../services/uploadService'
 import type { VentureFormValues } from '../types/forms'
 
@@ -15,11 +20,19 @@ const primaryNetworkFields = ['instagram', 'tiktok', 'website', 'whatsapp'] as c
 const secondaryNetworkFields = ['facebook', 'youtube', 'spotify', 'x', 'linkedin', 'behance', 'github'] as const
 
 export function VentureForm({ initialValues, submitLabel, onSubmit, mode = 'full' }: VentureFormProps) {
-  const [values, setValues] = useState<VentureFormValues>(initialValues)
+  const [values, setValues] = useState<VentureFormValues>(() => ({
+    ...initialValues,
+    country: initialValues.country || PRIMARY_COUNTRY_NAME,
+  }))
   const [uploading, setUploading] = useState(false)
   const [showExtraFields, setShowExtraFields] = useState(mode === 'full')
   const isOnboarding = mode === 'onboarding'
-  const citySuggestions = useMemo(() => getCitiesForCountry(values.country), [values.country])
+  const usesStructuredLocation = hasStructuredLocationsForCountry(values.country)
+  const departmentOptions = useMemo(() => getDepartmentsForCountry(values.country), [values.country])
+  const citySuggestions = useMemo(
+    () => getCitiesForCountryAndDepartment(values.country, values.department),
+    [values.country, values.department],
+  )
 
   async function handleImageUpload(event: React.ChangeEvent<HTMLInputElement>, field: 'logoURL' | 'coverURL') {
     const file = event.target.files?.[0]
@@ -100,36 +113,66 @@ export function VentureForm({ initialValues, submitLabel, onSubmit, mode = 'full
 
         <label className="field">
           <span>País</span>
-          <select
-            required
-            value={values.country}
-            onChange={(event) =>
-              setValues((current) => ({ ...current, country: event.target.value, city: '' }))
-            }
-          >
-            <option value="">Seleccioná un país</option>
-            {countries.map((country) => (
-              <option key={country.isoCode} value={country.name}>
-                {country.name}
-              </option>
-            ))}
-          </select>
+          <input value={PRIMARY_COUNTRY_NAME} disabled readOnly />
+          <small>Por ahora Voseguime está concentrado en Colombia.</small>
+        </label>
+
+        <label className="field">
+          <span>Departamento</span>
+          {usesStructuredLocation ? (
+            <select
+              required
+              value={values.department}
+              onChange={(event) =>
+                setValues((current) => ({
+                  ...current,
+                  department: event.target.value,
+                  city: '',
+                }))
+              }
+              disabled={!values.country}
+            >
+              <option value="">Seleccioná un departamento</option>
+              {departmentOptions.map((department) => (
+                <option key={department} value={department}>
+                  {department}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              value={values.department}
+              onChange={(event) => setValues((current) => ({ ...current, department: event.target.value }))}
+              placeholder={values.country ? 'Escribí tu departamento o provincia' : 'Primero elegí un país'}
+              disabled={!values.country}
+            />
+          )}
         </label>
 
         <label className="field">
           <span>Ciudad</span>
-          <input
-            list="city-suggestions"
-            value={values.city}
-            onChange={(event) => setValues((current) => ({ ...current, city: event.target.value }))}
-            placeholder={values.country ? 'Escribí o seleccioná una ciudad' : 'Primero elegí un país'}
-            disabled={!values.country || values.country === 'Otro'}
-          />
-          <datalist id="city-suggestions">
-            {citySuggestions.map((city) => (
-              <option key={city} value={city} />
-            ))}
-          </datalist>
+          {usesStructuredLocation ? (
+            <select
+              required
+              value={values.city}
+              onChange={(event) => setValues((current) => ({ ...current, city: event.target.value }))}
+              disabled={!values.department}
+            >
+              <option value="">{values.department ? 'Seleccioná una ciudad' : 'Primero elegí un departamento'}</option>
+              {citySuggestions.map((city) => (
+                <option key={city} value={city}>
+                  {city}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              value={values.city}
+              onChange={(event) => setValues((current) => ({ ...current, city: event.target.value }))}
+              placeholder={values.country ? 'Escribí tu ciudad' : 'Primero elegí un país'}
+              disabled={!values.country}
+            />
+          )}
         </label>
 
         <label className="field field--full">

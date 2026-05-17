@@ -1095,6 +1095,12 @@ small { color: var(--muted); font-size: 0.8rem; }
 
 .profile-hero__copy { display: grid; gap: 0.65rem; }
 
+.profile-hero__meta {
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+}
+
 .meta-grid, .stats-grid, .card-grid {
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
 }
@@ -1261,6 +1267,7 @@ small { color: var(--muted); font-size: 0.8rem; }
   .admin-toolbar .button { width: auto; }
 
   .profile-hero { grid-template-columns: auto 1.2fr 0.9fr; align-items: start; }
+  .profile-hero__meta { grid-template-columns: 1fr; }
 
   .venture-avatar { width: 52px; height: 52px; border-radius: 15px; }
 }

@@ -10,7 +10,7 @@ import { useFavorites } from '../hooks/useFavorites'
 import { useSEO } from '../hooks/useSEO'
 import { useToast } from '../hooks/useToast'
 import { useVenture } from '../hooks/useVenture'
-import { formatDateLabel, getFollowableNetworks } from '../lib/utils'
+import { formatDateLabel, formatLocationLabel, getFollowableNetworks } from '../lib/utils'
 
 export function VenturePublicPage() {
   const venture = useVenture()
@@ -78,9 +78,7 @@ export function VenturePublicPage() {
           <div className="profile-hero__meta">
             <div className="profile-meta-card">
               <span>Ubicación</span>
-              <strong>
-                {venture.city || 'Ciudad por definir'}, {venture.country}
-              </strong>
+              <strong>{formatLocationLabel(venture) || 'Ciudad por definir'}</strong>
             </div>
             <div className="profile-meta-card">
               <span>Miembro desde</span>

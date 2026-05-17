@@ -1,4 +1,5 @@
 import { socialNetworkLabels } from '../lib/constants'
+import { hasStructuredLocationsForCountry } from '../lib/geo'
 import { getAvailableNetworks, parseTags, slugify } from '../lib/utils'
 import type { AppDatabase, User, Venture } from '../types/models'
 import type { VentureFilters, VentureFormValues } from '../types/forms'
@@ -26,6 +27,14 @@ function validateVenture(values: VentureFormValues) {
     throw new Error('El pais es obligatorio.')
   }
 
+  if (hasStructuredLocationsForCountry(values.country) && !cleanString(values.department)) {
+    throw new Error('El departamento es obligatorio.')
+  }
+
+  if (!cleanString(values.city)) {
+    throw new Error('La ciudad es obligatoria.')
+  }
+
   if (cleanString(values.description).length > 240) {
     throw new Error('La descripción no puede superar 240 caracteres.')
   }
@@ -50,6 +59,7 @@ function buildVenture(values: VentureFormValues, ownerId: string, slug: string):
     category: cleanString(values.category),
     subcategory: cleanString(values.subcategory) || undefined,
     country: cleanString(values.country),
+    department: cleanString(values.department) || undefined,
     city: cleanString(values.city),
     logoURL: cleanString(values.logoURL) || undefined,
     coverURL: cleanString(values.coverURL) || undefined,
@@ -161,7 +171,7 @@ export function filterVentures(ventures: Venture[], filters: VentureFilters) {
   const filtered = ventures.filter((venture) => {
     const matchesSearch =
       !search ||
-      [venture.name, venture.description, venture.category, venture.city, venture.country]
+      [venture.name, venture.description, venture.category, venture.city, venture.department, venture.country]
         .join(' ')
         .toLowerCase()
         .includes(search)
@@ -169,6 +179,7 @@ export function filterVentures(ventures: Venture[], filters: VentureFilters) {
     const matchesTag = !tag || venture.tags.some((item) => item.toLowerCase().includes(tag))
     const matchesCategory = !filters.category || venture.category === filters.category
     const matchesCountry = !filters.country || venture.country === filters.country
+    const matchesDepartment = !filters.department || venture.department === filters.department
     const matchesCity = !filters.city || venture.city === filters.city
     const matchesNetwork = !filters.network || Boolean(venture.socialLinks[filters.network as keyof typeof socialNetworkLabels])
 
@@ -177,6 +188,7 @@ export function filterVentures(ventures: Venture[], filters: VentureFilters) {
       matchesTag &&
       matchesCategory &&
       matchesCountry &&
+      matchesDepartment &&
       matchesCity &&
       matchesNetwork
     )
@@ -206,6 +218,7 @@ export function ventureToFormValues(venture: Venture): VentureFormValues {
     category: venture.category,
     subcategory: venture.subcategory ?? '',
     country: venture.country,
+    department: venture.department ?? '',
     city: venture.city,
     logoURL: venture.logoURL ?? '',
     coverURL: venture.coverURL ?? '',

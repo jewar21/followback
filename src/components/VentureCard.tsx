@@ -4,7 +4,7 @@ import { FollowBackButton } from './FollowBackButton'
 import { VentureSocialLinks } from './VentureSocialLinks'
 import { type FollowableNetwork } from '../lib/constants'
 import { countNetworks } from '../services/ventureService'
-import { getFollowableNetworks } from '../lib/utils'
+import { formatLocationLabel, getFollowableNetworks } from '../lib/utils'
 import type { Venture } from '../types/models'
 
 type VentureCardProps = Readonly<{
@@ -35,9 +35,7 @@ export function VentureCard({
           </div>
           <div>
             <h3>{venture.name}</h3>
-            <p>
-              {venture.category} • {venture.city || 'Ciudad pendiente'}, {venture.country}
-            </p>
+            <p>{venture.category} • {formatLocationLabel(venture) || 'Ubicación pendiente'}</p>
           </div>
         </div>
         <span className="status-pill">{countNetworks(venture)} redes</span>

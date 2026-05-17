@@ -1,3 +1,4 @@
+import { PRIMARY_COUNTRY_NAME } from '../lib/geo'
 import type { SocialLinks } from './models'
 
 export type VentureFormValues = {
@@ -6,6 +7,7 @@ export type VentureFormValues = {
   category: string
   subcategory: string
   country: string
+  department: string
   city: string
   logoURL: string
   coverURL: string
@@ -23,6 +25,7 @@ export type VentureFilters = {
   tag: string
   category: string
   country: string
+  department: string
   city: string
   network: string
   sortBy: 'recent' | 'active' | 'supported' | 'trusted'
@@ -46,7 +49,8 @@ export const defaultVentureFormValues: VentureFormValues = {
   description: '',
   category: '',
   subcategory: '',
-  country: '',
+  country: PRIMARY_COUNTRY_NAME,
+  department: '',
   city: '',
   logoURL: '',
   coverURL: '',
@@ -75,7 +79,8 @@ export const defaultVentureFilters: VentureFilters = {
   search: '',
   tag: '',
   category: '',
-  country: '',
+  country: PRIMARY_COUNTRY_NAME,
+  department: '',
   city: '',
   network: '',
   sortBy: 'recent',

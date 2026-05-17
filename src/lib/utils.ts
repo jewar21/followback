@@ -53,3 +53,12 @@ export function parseTags(input: string) {
     .filter(Boolean)
     .filter((tag, index, list) => list.indexOf(tag) === index)
 }
+
+export function formatLocationLabel(location: {
+  country?: string
+  department?: string
+  city?: string
+}) {
+  const parts = [location.city, location.department, location.country].filter(Boolean)
+  return parts.join(', ')
+}
