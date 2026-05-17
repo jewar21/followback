@@ -26,7 +26,7 @@ export function createFeedback(
   }
 
   if (!contactEmail) {
-    throw new Error('Necesitamos un correo de contacto para dar seguimiento.')
+    throw new Error('Necesitamos un correo de contacto para darte seguimiento.')
   }
 
   const next = structuredClone(database)

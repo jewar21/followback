@@ -47,8 +47,8 @@ export function NetworkMapPage() {
       <div className="container">
         <div className="page-heading">
           <span className="eyebrow">Network map</span>
-          <h1>Visualiza la red de apoyo</h1>
-          <p>Nodos para emprendimientos. Lineas para solicitudes y followbacks completados.</p>
+          <h1>Visualizá la red de apoyo</h1>
+          <p>Nodos para emprendimientos. Líneas para solicitudes y seguimientos recíprocos completados.</p>
         </div>
         <section className="panel filter-panel">
           <div className="form-grid">

@@ -29,8 +29,8 @@ export function SettingsPage() {
       <div className="page">
         <div className="container">
           <EmptyState
-            title="Debes iniciar sesion"
-            description="Accede a tu cuenta para editar datos, revisar notificaciones y configurar permisos del navegador."
+            title="Debés iniciar sesión"
+            description="Accedé a tu cuenta para editar datos, revisar notificaciones y configurar permisos del navegador."
             ctaLabel="Ir a login"
             ctaTo="/login"
           />
@@ -73,14 +73,14 @@ export function SettingsPage() {
         <div className="page-heading">
           <span className="eyebrow">Settings</span>
           <h1>Cuenta, emprendimiento y notificaciones</h1>
-          <p>{currentUser.email}. Aqui puedes completar tu perfil, dejar feedback y preparar tu navegador para recibir avisos futuros.</p>
+          <p>{currentUser.email}. Acá podés completar tu perfil, dejar feedback y preparar tu navegador para recibir avisos futuros.</p>
         </div>
 
         <div className="page-sections">
           <section className="panel settings-callout">
             <div>
               <strong>¿Encontraste algo para mejorar?</strong>
-              <p className="muted-text">Estamos aplicando cambios en la app y nos sirve mucho saber si ya actualizaste tus datos o si algo te esta frenando.</p>
+              <p className="muted-text">Estamos aplicando cambios en la app y nos sirve mucho saber si ya actualizaste tus datos o si algo te está frenando.</p>
             </div>
             <Link className="button button--ghost" to="/feedback">
               Dejar feedback
@@ -91,7 +91,7 @@ export function SettingsPage() {
             <div>
               <strong>Notificaciones del navegador</strong>
               <p className="muted-text">
-                Estado actual: {pushSubscriptionStatusLabels[currentSubscription?.status ?? 'pending']}. Si autorizas este navegador, quedara listo para recibir push cuando habilitemos el envio desde backend.
+                Estado actual: {pushSubscriptionStatusLabels[currentSubscription?.status ?? 'pending']}. Si autorizás este navegador, va a quedar listo para recibir push cuando habilitemos el envío desde backend.
               </p>
               {currentSubscription?.lastError ? <p className="muted-text">{currentSubscription.lastError}</p> : null}
             </div>
@@ -117,8 +117,8 @@ export function SettingsPage() {
             />
           ) : (
             <EmptyState
-              title="Aun no tienes emprendimiento"
-              description="Puedes dejar las notificaciones listas desde ahora y completar luego el onboarding para publicar tu perfil."
+              title="Aún no tenés emprendimiento"
+              description="Podés dejar las notificaciones listas desde ahora y completar después el onboarding para publicar tu perfil."
               ctaLabel="Ir a onboarding"
               ctaTo="/onboarding"
             />

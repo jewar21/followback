@@ -23,7 +23,7 @@ export function FeedbackPage() {
           <span className="eyebrow">Feedback</span>
           <h1>Ayudanos a mejorar Voseguime</h1>
           <p>
-            Estamos aplicando actualizaciones en la app. Cuéntanos si ya terminaste de actualizar tus datos y qué deberíamos mejorar para que el flujo sea más claro.
+            Estamos aplicando actualizaciones en la app. Contanos si ya terminaste de actualizar tus datos y qué deberíamos mejorar para que el flujo sea más claro.
           </p>
         </div>
 
@@ -31,8 +31,8 @@ export function FeedbackPage() {
           <section className="panel">
             <div className="section-heading section-heading--stack">
               <div>
-                <h2>Comparte tu feedback</h2>
-                <p>Este espacio también nos sirve para saber si tu perfil ya está listo o si necesitas ayuda para dejarlo disponible.</p>
+                <h2>Compartí tu feedback</h2>
+                <p>Este espacio también nos sirve para saber si tu perfil ya está listo o si necesitás ayuda para dejarlo disponible.</p>
               </div>
             </div>
 
@@ -107,7 +107,7 @@ export function FeedbackPage() {
                     rows={6}
                     value={values.message}
                     onChange={(event) => setValues((current) => ({ ...current, message: event.target.value }))}
-                    placeholder="Cuéntanos qué te ayudó, qué te frenó o qué cambiarías del flujo actual."
+                    placeholder="Contanos qué te ayudó, qué te frenó o qué cambiarías del flujo actual."
                   />
                 </label>
 
@@ -123,8 +123,8 @@ export function FeedbackPage() {
 
                 <div className="feedback-meta-card">
                   <span>Perfil asociado</span>
-                  <strong>{currentVenture?.name ?? 'Aun no has creado un emprendimiento'}</strong>
-                  <small>Si todavía no terminas tu perfil, también nos sirve que lo reportes aquí.</small>
+                  <strong>{currentVenture?.name ?? 'Aún no creaste un emprendimiento'}</strong>
+                  <small>Si todavía no terminás tu perfil, también nos sirve que lo reportes acá.</small>
                 </div>
               </div>
 
@@ -140,12 +140,12 @@ export function FeedbackPage() {
             <div className="section-heading section-heading--stack">
               <div>
                 <h2>Tus envíos recientes</h2>
-                <p>Así confirmas que tu comentario quedó registrado mientras seguimos iterando el producto.</p>
+                <p>Así confirmás que tu comentario quedó registrado mientras seguimos iterando el producto.</p>
               </div>
             </div>
 
             {myFeedback.length === 0 ? (
-              <p className="muted-text">Todavía no has enviado feedback. Si estás actualizando tus datos o ves algo confuso, este es el mejor lugar para contarlo.</p>
+              <p className="muted-text">Todavía no enviaste feedback. Si estás actualizando tus datos o ves algo confuso, este es el mejor lugar para contarlo.</p>
             ) : (
               <div className="request-list">
                 {myFeedback.slice(0, 5).map((feedback) => (

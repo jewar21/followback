@@ -13,12 +13,12 @@ export function FavoritesPage() {
         <div className="page-heading">
           <span className="eyebrow">Favoritos</span>
           <h1>Emprendimientos guardados</h1>
-          <p>Tu lista rapida para volver a revisar redes, propuestas o posibles alianzas.</p>
+          <p>Tu lista rápida para volver a revisar redes, propuestas o posibles alianzas.</p>
         </div>
         {favoriteVentures.length === 0 ? (
           <EmptyState
-            title="No has guardado emprendimientos"
-            description="Usa Guardar en el directorio para construir tu propia lista."
+            title="No guardaste emprendimientos"
+            description="Usá Guardar en el directorio para construir tu propia lista."
             ctaLabel="Explorar directorio"
             ctaTo="/discover"
           />

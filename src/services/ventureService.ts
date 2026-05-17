@@ -27,14 +27,14 @@ function validateVenture(values: VentureFormValues) {
   }
 
   if (cleanString(values.description).length > 240) {
-    throw new Error('La descripcion no puede superar 240 caracteres.')
+    throw new Error('La descripción no puede superar 240 caracteres.')
   }
 
   const socialLinks = cleanSocialLinks(values.socialLinks)
   const hasAtLeastOneSocial = Object.values(socialLinks).some(Boolean)
 
   if (!hasAtLeastOneSocial) {
-    throw new Error('Agrega al menos una red social o sitio web.')
+    throw new Error('Agregá al menos una red social o sitio web.')
   }
 }
 

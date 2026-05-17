@@ -19,8 +19,8 @@ export function DashboardPage() {
       <div className="page">
         <div className="container">
           <EmptyState
-            title="Aun no tienes emprendimiento"
-            description="Completa el onboarding para aparecer en el directorio y activar tu dashboard."
+            title="Aún no tenés emprendimiento"
+            description="Completá el onboarding para aparecer en el directorio y activar tu dashboard."
             ctaLabel="Crear mi emprendimiento"
             ctaTo="/onboarding"
           />
@@ -35,7 +35,7 @@ export function DashboardPage() {
         <div className="page-heading">
           <span className="eyebrow">Dashboard</span>
           <h1>{currentVenture.name}</h1>
-          <p>Controla tu visibilidad, tus redes y las solicitudes de reciprocidad.</p>
+          <p>Controlá tu visibilidad, tus redes y las solicitudes de reciprocidad.</p>
         </div>
 
         <DashboardStats venture={currentVenture} />
@@ -91,7 +91,7 @@ export function DashboardPage() {
             <h2>Mis favoritos</h2>
           </div>
           {favoriteVentures.length === 0 ? (
-            <p className="muted-text">Guarda emprendimientos interesantes para volver rapido a sus redes.</p>
+            <p className="muted-text">Guardá emprendimientos interesantes para volver rápido a sus redes.</p>
           ) : (
             <div className="card-grid">
               {favoriteVentures.map((venture) => (

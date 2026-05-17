@@ -21,24 +21,24 @@ export function AdminPage() {
     sendAdminNotification,
   } = useAppData()
   const { pushToast } = useToast()
-  const [campaignSubject, setCampaignSubject] = useState('Actualiza tu perfil en Voseguime y cuentanos como mejorar')
+  const [campaignSubject, setCampaignSubject] = useState('Actualizá tu perfil en Voseguime y contanos cómo mejorar')
   const [campaignBody, setCampaignBody] = useState(
     [
       'Hola,',
       '',
-      'Estamos aplicando mejoras en Voseguime para que los perfiles sean mas faciles de completar, explorar y mantener actualizados.',
+      'Estamos aplicando mejoras en Voseguime para que los perfiles sean más fáciles de completar, explorar y mantener actualizados.',
       '',
-      'Te pedimos por favor entrar de nuevo, revisar tu informacion y completar tu emprendimiento para dejarlo disponible con mejores datos para la comunidad.',
+      'Te pedimos por favor entrar de nuevo, revisar tu información y completar tu emprendimiento para dejarlo disponible con mejores datos para la comunidad.',
       '',
-      'Tambien abrimos una seccion de Feedback dentro de la app para que nos cuentes si ya terminaste de actualizar tus datos, si encontraste algun bloqueo o que mejoras te gustaria ver.',
+      'También abrimos una sección de Feedback dentro de la app para que nos cuentes si ya terminaste de actualizar tus datos, si encontraste algún bloqueo o qué mejoras te gustaría ver.',
       '',
       'Gracias por ayudarnos a mejorar Voseguime.',
     ].join('\n'),
   )
   const [campaignAudience, setCampaignAudience] = useState<AnnouncementAudience>('pending_onboarding')
-  const [announcementTitle, setAnnouncementTitle] = useState('Tienes novedades pendientes en Voseguime')
+  const [announcementTitle, setAnnouncementTitle] = useState('Tenés novedades pendientes en Voseguime')
   const [announcementMessage, setAnnouncementMessage] = useState(
-    'Entra a la app, revisa tu perfil y deja feedback si algo te esta frenando. Este aviso quedara disponible en tu bandeja interna aunque no tengas push activo.',
+    'Entrá a la app, revisá tu perfil y dejá feedback si algo te está frenando. Este aviso va a quedar disponible en tu bandeja interna aunque no tengas push activo.',
   )
   const [announcementCtaUrl, setAnnouncementCtaUrl] = useState('/notifications')
   const [userSearch, setUserSearch] = useState('')
@@ -140,7 +140,7 @@ export function AdminPage() {
         <div className="page-heading">
           <span className="eyebrow">Admin</span>
           <h1>Panel administrativo</h1>
-          <p>Controla usuarios autenticados, revisa onboarding, centraliza feedback y atiende reportes sin entrar a Firestore manualmente.</p>
+          <p>Controlá usuarios autenticados, revisá onboarding, centralizá feedback y atendé reportes sin entrar a Firestore manualmente.</p>
         </div>
 
         <section className="stats-grid">
@@ -169,7 +169,7 @@ export function AdminPage() {
         <section className="panel admin-toolbar">
           <div>
             <strong>Contactos filtrados</strong>
-            <p className="muted-text">Copia solo los correos del segmento visible para acciones manuales, CRM o futuras campanas externas.</p>
+            <p className="muted-text">Copiá solo los correos del segmento visible para acciones manuales, CRM o futuras campañas externas.</p>
           </div>
           <button className="button button--ghost" onClick={() => void copyEmails()} disabled={contactEmails.length === 0}>
             <Copy size={16} />
@@ -183,7 +183,7 @@ export function AdminPage() {
               <div className="section-heading section-heading--stack">
                 <div>
                   <h2>Campana interna</h2>
-                  <p>Crea avisos que quedan visibles en la bandeja de notificaciones de cada usuario aunque no tenga push activo.</p>
+                  <p>Creá avisos que quedan visibles en la bandeja de notificaciones de cada usuario aunque no tenga push activo.</p>
                 </div>
               </div>
 
@@ -243,7 +243,7 @@ export function AdminPage() {
 
                 <div className="button-row">
                   <button className="button button--primary" type="submit">
-                    Publicar notificacion interna
+                    Publicar notificación interna
                   </button>
                 </div>
               </form>
@@ -252,8 +252,8 @@ export function AdminPage() {
             <section className="panel">
               <div className="section-heading section-heading--stack">
                 <div>
-                  <h2>Campana de correo</h2>
-                  <p>Este bloque se mantiene para cuando actives Functions/Blaze. Mientras tanto, la campana interna ya te cubre el caso operativo.</p>
+                  <h2>Campaña de correo</h2>
+                  <p>Este bloque se mantiene para cuando actives Functions/Blaze. Mientras tanto, la campaña interna ya te cubre el caso operativo.</p>
                 </div>
               </div>
 
@@ -290,7 +290,7 @@ export function AdminPage() {
 
                 <div className="button-row">
                   <button className="button button--ghost" type="submit">
-                    Intentar envio por correo
+                    Intentar envío por correo
                   </button>
                 </div>
               </form>
@@ -300,7 +300,7 @@ export function AdminPage() {
               <div className="section-heading section-heading--stack">
                 <div>
                   <h2>Usuarios</h2>
-                  <p>Filtra por onboarding, rol y readiness de push. Este era uno de los huecos mas notorios del panel actual.</p>
+                  <p>Filtrá por onboarding, rol y readiness de push. Este era uno de los huecos más notorios del panel actual.</p>
                 </div>
               </div>
 
@@ -379,9 +379,9 @@ export function AdminPage() {
                             value={user.role}
                             onChange={(event) => {
                               try {
-                                updateUserAdminFields(user.uid, { role: event.target.value as typeof user.role })
-                                pushToast('Rol actualizado.', 'success')
-                              } catch (error) {
+                              updateUserAdminFields(user.uid, { role: event.target.value as typeof user.role })
+                              pushToast('Rol actualizado.', 'success')
+                            } catch (error) {
                                 pushToast(error instanceof Error ? error.message : 'No fue posible actualizar el rol.', 'danger')
                               }
                             }}
@@ -398,8 +398,8 @@ export function AdminPage() {
                             value={user.status}
                             onChange={(event) => {
                               try {
-                                updateUserAdminFields(user.uid, { status: event.target.value as typeof user.status })
-                                pushToast('Estado actualizado.', 'success')
+                              updateUserAdminFields(user.uid, { status: event.target.value as typeof user.status })
+                              pushToast('Estado actualizado.', 'success')
                               } catch (error) {
                                 pushToast(error instanceof Error ? error.message : 'No fue posible actualizar el estado.', 'danger')
                               }
@@ -424,12 +424,12 @@ export function AdminPage() {
               <div className="section-heading section-heading--stack">
                 <div>
                   <h2>Inbox interno reciente</h2>
-                  <p>Te permite auditar que ya se genero la comunicacion dentro de la app antes de pensar en push o correo.</p>
+                  <p>Te permite auditar que ya se generó la comunicación dentro de la app antes de pensar en push o correo.</p>
                 </div>
               </div>
               <div className="request-list">
                 {internalNotifications.length === 0 ? (
-                  <p className="muted-text">Aun no has creado notificaciones internas.</p>
+                  <p className="muted-text">Aún no creaste notificaciones internas.</p>
                 ) : (
                   internalNotifications.slice(0, 8).map((notification) => (
                     <article key={notification.id} className="request-card">
@@ -453,12 +453,12 @@ export function AdminPage() {
               <div className="section-heading section-heading--stack">
                 <div>
                   <h2>Feedback</h2>
-                  <p>Prioriza comentarios sobre actualizacion de perfil, UX, bugs y mejoras.</p>
+                  <p>Priorizá comentarios sobre actualización de perfil, UX, bugs y mejoras.</p>
                 </div>
               </div>
               <div className="request-list">
                 {feedbackQueue.length === 0 ? (
-                  <p className="muted-text">Aun no hay feedback registrado.</p>
+                  <p className="muted-text">Aún no hay feedback registrado.</p>
                 ) : (
                   feedbackQueue.slice(0, 8).map((feedback) => (
                     <article key={feedback.id} className="request-card">
@@ -504,7 +504,7 @@ export function AdminPage() {
               <div className="section-heading section-heading--stack">
                 <div>
                   <h2>Reportes</h2>
-                  <p>Revisa incidencias sobre contenido, suplantacion o datos publicos problematicos.</p>
+                  <p>Revisá incidencias sobre contenido, suplantación o datos públicos problemáticos.</p>
                 </div>
               </div>
               <div className="request-list">

@@ -72,7 +72,7 @@ export function NetworkMap({ nodes, edges }: NetworkMapProps) {
       <div className="network-map-legend">
         <span>
           <i className="legend-dot legend-dot--solid" />
-          FollowBack completado
+          Seguimiento recíproco
         </span>
         <span>
           <i className="legend-dot" />

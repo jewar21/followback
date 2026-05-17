@@ -22,24 +22,24 @@ export function NotificationsPage() {
         <div className="page-heading">
           <span className="eyebrow">Notificaciones</span>
           <h1>Bandeja de novedades</h1>
-          <p>Centraliza avisos del equipo, recordatorios de onboarding y mensajes que luego tambien pueden escalarse a push.</p>
+          <p>Centralizá avisos del equipo, recordatorios de onboarding y mensajes que después también pueden escalarse a push.</p>
         </div>
 
         <div className="page-sections">
           <section className="panel admin-toolbar">
             <div>
               <strong>{unreadCount} sin leer</strong>
-              <p className="muted-text">Las notificaciones administrativas quedan visibles aqui aunque el navegador no permita push.</p>
+              <p className="muted-text">Las notificaciones administrativas quedan visibles acá aunque el navegador no permita push.</p>
             </div>
             <button className="button button--ghost" onClick={() => markAllNotificationsRead()} disabled={unreadCount === 0}>
-              Marcar todo como leido
+              Marcar todo como leído
             </button>
           </section>
 
           {notifications.length === 0 ? (
             <EmptyState
-              title="Aun no tienes notificaciones"
-              description="Cuando el equipo publique avisos internos o tengamos mensajes para tu cuenta, apareceran aqui."
+              title="Aún no tenés notificaciones"
+              description="Cuando el equipo publique avisos internos o tenga mensajes para tu cuenta, van a aparecer acá."
               ctaLabel="Ir a explorar"
               ctaTo="/discover"
             />
@@ -68,10 +68,10 @@ export function NotificationsPage() {
                   ) : null}
                   {notification.status === 'unread' ? (
                     <button className="button button--primary" onClick={() => markNotificationRead(notification.id)}>
-                      Marcar como leida
+                      Marcar como leída
                     </button>
                   ) : (
-                    <span className="muted-text">Leida {notification.readAt ? formatDateLabel(notification.readAt) : ''}</span>
+                    <span className="muted-text">Leída {notification.readAt ? formatDateLabel(notification.readAt) : ''}</span>
                   )}
                 </div>
               </article>

@@ -64,8 +64,8 @@ export function VentureForm({ initialValues, submitLabel, onSubmit, mode = 'full
     >
       {isOnboarding ? (
         <div className="onboarding-form-intro">
-          <strong>Empieza con lo minimo</strong>
-          <p>Publica tu perfil con los datos esenciales.</p>
+          <strong>Empezá con lo mínimo</strong>
+          <p>Publicá tu perfil con los datos esenciales.</p>
         </div>
       ) : null}
 
@@ -122,7 +122,7 @@ export function VentureForm({ initialValues, submitLabel, onSubmit, mode = 'full
             maxLength={240}
             value={values.description}
             onChange={(event) => setValues((current) => ({ ...current, description: event.target.value }))}
-            placeholder="Cuenta rapido que haces y por que vale la pena seguirte."
+            placeholder="Contá rápido qué hacés y por qué vale la pena seguirte."
           />
           <small>{values.description.length}/240</small>
         </label>
@@ -132,7 +132,7 @@ export function VentureForm({ initialValues, submitLabel, onSubmit, mode = 'full
         <div className="section-heading section-heading--stack">
           <div>
             <h2>Red principal</h2>
-            <p>Con una sola red o sitio web ya puedes aparecer en el directorio.</p>
+            <p>Con una sola red o sitio web ya podés aparecer en el directorio.</p>
           </div>
         </div>
         <div className="form-grid">
@@ -156,9 +156,9 @@ export function VentureForm({ initialValues, submitLabel, onSubmit, mode = 'full
             type="button"
             onClick={() => setShowExtraFields((current) => !current)}
           >
-            {showExtraFields ? 'Ocultar campos extra' : 'Quiero completar mas datos ahora'}
+            {showExtraFields ? 'Ocultar campos extra' : 'Quiero completar más datos ahora'}
           </button>
-          <p className="muted-text">Tambien podras completar estos datos mas tarde desde Settings.</p>
+          <p className="muted-text">También vas a poder completar estos datos más tarde desde Ajustes.</p>
         </div>
       ) : null}
 

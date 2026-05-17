@@ -20,11 +20,59 @@ service cloud.firestore {
         && userDoc().data.role == "admin";
     }
 
+    function isSafeSelfUserCreate(userId) {
+      return isOwner(userId)
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.role == "user"
+        && request.resource.data.status == "active"
+        && request.resource.data.onboardingCompleted == false;
+    }
+
+    function isSafeSelfUserUpdate(userId) {
+      return isOwner(userId)
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.role == resource.data.role
+        && request.resource.data.status == resource.data.status
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.welcomeEmailSentAt == resource.data.welcomeEmailSentAt
+        && request.resource.data.onboardingEmailSentAt == resource.data.onboardingEmailSentAt
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          "email",
+          "displayName",
+          "photoURL",
+          "onboardingCompleted",
+          "updatedAt",
+        ]);
+    }
+
+    function isSafePushSubscriptionCreate() {
+      return signedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.platform == "web";
+    }
+
+    function isSafePushSubscriptionUpdate() {
+      return signedIn()
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.id == resource.data.id
+        && request.resource.data.platform == resource.data.platform
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          "token",
+          "permission",
+          "status",
+          "userAgent",
+          "updatedAt",
+          "lastTokenAt",
+          "lastError",
+        ]);
+    }
+
     match /users/{userId} {
       allow read: if isOwner(userId) || isAdmin();
-      allow create: if isOwner(userId)
-        && request.resource.data.uid == request.auth.uid;
-      allow update: if isOwner(userId) || isAdmin();
+      allow create: if isSafeSelfUserCreate(userId);
+      allow update: if isAdmin() || isSafeSelfUserUpdate(userId);
       allow delete: if isAdmin();
     }
 
@@ -141,8 +189,7 @@ service cloud.firestore {
     }
 
     match /pushSubscriptions/{subscriptionId} {
-      allow create: if signedIn()
-        && request.resource.data.userId == request.auth.uid;
+      allow create: if isSafePushSubscriptionCreate();
 
       allow read: if signedIn()
         && (
@@ -150,11 +197,7 @@ service cloud.firestore {
           || isAdmin()
         );
 
-      allow update: if signedIn()
-        && (
-          resource.data.userId == request.auth.uid
-          || isAdmin()
-        );
+      allow update: if isAdmin() || isSafePushSubscriptionUpdate();
 
       allow delete: if signedIn()
         && (

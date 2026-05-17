@@ -16,16 +16,18 @@ export function LoginPage() {
       return
     }
 
-    navigate(currentUser.onboardingCompleted ? '/dashboard' : '/onboarding', { replace: true })
+    navigate(currentUser.role === 'admin' ? '/admin' : currentUser.onboardingCompleted ? '/dashboard' : '/onboarding', {
+      replace: true,
+    })
   }, [currentUser, navigate])
 
   async function handleGoogleLogin() {
     setSubmitting(true)
     try {
       await signInWithGoogle()
-      pushToast('Sesion iniciada con Google.', 'success')
+      pushToast('Sesión iniciada con Google.', 'success')
     } catch (error) {
-      pushToast(error instanceof Error ? error.message : 'No fue posible iniciar sesion.', 'danger')
+      pushToast(error instanceof Error ? error.message : 'No fue posible iniciar sesión.', 'danger')
     } finally {
       setSubmitting(false)
     }
@@ -46,16 +48,16 @@ export function LoginPage() {
       <div className="container narrow-layout">
         <section className="panel auth-panel">
           <span className="eyebrow">Acceso</span>
-          <h1>Conecta tu cuenta y publica tu emprendimiento</h1>
+          <h1>Conectá tu cuenta y publicá tu emprendimiento</h1>
           <p>
-            Usa Google para autenticacion real con Firebase o entra en modo demo para recorrer el MVP sin credenciales.
+            Usá Google para autenticación real con Firebase o entrá en modo demo para recorrer el MVP sin credenciales.
           </p>
           <div className="stack">
             <button className="button button--primary button--block" onClick={() => void handleGoogleLogin()} disabled={!firebaseEnabled || submitting}>
               {firebaseEnabled ? 'Continuar con Google' : 'Google Login requiere VITE_FIREBASE_*'}
             </button>
             <button className="button button--ghost button--block" onClick={() => void handleDemoLogin()} disabled={submitting}>
-              Entrar al modo demo
+              Entrá al modo demo
             </button>
           </div>
         </section>

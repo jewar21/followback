@@ -52,6 +52,7 @@ export function Navbar() {
   const { database } = useAppData()
   const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
+  const isAdmin = currentUser?.role === 'admin'
 
   const unread = currentUser
     ? database.notifications.filter(
@@ -61,9 +62,8 @@ export function Navbar() {
 
   const mobileItems: MobileNavItem[] = [
     ...publicItems,
-    ...(currentUser ? privateItems : []),
-    ...(currentVenture ? [{ to: `/v/${currentVenture.slug}`, label: 'Mi perfil', icon: UserCircle }] : []),
-    ...(currentUser?.role === 'admin' ? [{ to: '/admin', label: 'Admin', icon: Shield }] : []),
+    ...(currentUser ? (isAdmin ? [{ to: '/admin', label: 'Admin', icon: Shield }] : privateItems) : []),
+    ...(currentVenture && !isAdmin ? [{ to: `/v/${currentVenture.slug}`, label: 'Mi perfil', icon: UserCircle }] : []),
   ]
 
   // Close mobile menu on resize to desktop
@@ -139,7 +139,7 @@ export function Navbar() {
             >
               Mapa
             </NavLink>
-            {currentVenture ? (
+            {currentVenture && !isAdmin ? (
               <NavLink
                 className={({ isActive }) => `nav-link ${isActive ? 'nav-link--active' : ''}`}
                 to={`/v/${currentVenture.slug}`}
@@ -157,14 +157,16 @@ export function Navbar() {
 
             {currentUser ? (
               <>
-                <Link
-                  className="notification-link"
-                  to="/notifications"
-                  aria-label="Notificaciones"
-                >
-                  <Bell size={16} />
-                  {unread > 0 ? <span className="notification-badge">{unread}</span> : null}
-                </Link>
+                {!isAdmin ? (
+                  <Link
+                    className="notification-link"
+                    to="/notifications"
+                    aria-label="Notificaciones"
+                  >
+                    <Bell size={16} />
+                    {unread > 0 ? <span className="notification-badge">{unread}</span> : null}
+                  </Link>
+                ) : null}
 
                 {/* User dropdown */}
                 <div className="user-menu dropdown" ref={userMenuRef}>
@@ -184,20 +186,19 @@ export function Navbar() {
                     <div className="dropdown-panel user-dropdown">
                       <div className="user-dropdown__info">
                         <strong>{currentUser.displayName}</strong>
-                        <span>{currentVenture?.name ?? 'Sin emprendimiento'}</span>
+                        <span>{isAdmin ? 'Panel administrativo' : currentVenture?.name ?? 'Sin emprendimiento'}</span>
                       </div>
 
                       <div className="dropdown-divider" />
 
-                      {[
-                        { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-                        { to: '/favorites', label: 'Favoritos', icon: Heart },
-                        { to: '/feedback', label: 'Feedback', icon: MessageSquare },
-                        { to: '/settings', label: 'Ajustes', icon: Settings },
-                        ...(currentUser.role === 'admin'
-                          ? [{ to: '/admin', label: 'Admin', icon: Shield }]
-                          : []),
-                      ].map(({ to, label, icon: Icon }) => (
+                      {(isAdmin
+                        ? [{ to: '/admin', label: 'Admin', icon: Shield }]
+                        : [
+                            { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+                            { to: '/favorites', label: 'Favoritos', icon: Heart },
+                            { to: '/feedback', label: 'Feedback', icon: MessageSquare },
+                            { to: '/settings', label: 'Ajustes', icon: Settings },
+                          ]).map(({ to, label, icon: Icon }) => (
                         <button
                           key={to}
                           className="dropdown-item"
@@ -233,16 +234,16 @@ export function Navbar() {
             <button className="theme-toggle" onClick={toggleTheme} aria-label="Cambiar tema">
               {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
             </button>
-            {currentUser ? (
-              <Link
-                className="notification-link"
-                to="/notifications"
-                aria-label="Notificaciones"
-              >
-                <Bell size={15} />
-                {unread > 0 ? <span className="notification-badge">{unread}</span> : null}
-              </Link>
-            ) : null}
+              {currentUser && !isAdmin ? (
+                <Link
+                  className="notification-link"
+                  to="/notifications"
+                  aria-label="Notificaciones"
+                >
+                  <Bell size={15} />
+                  {unread > 0 ? <span className="notification-badge">{unread}</span> : null}
+                </Link>
+              ) : null}
             <button
               className={`menu-toggle ${menuOpen ? 'menu-toggle--open' : ''}`}
               onClick={() => setMenuOpen((v) => !v)}
@@ -290,12 +291,12 @@ export function Navbar() {
               {/* User info */}
               {currentUser ? (
                 <div className="mobile-nav-user">
-                  <div className="mobile-nav-user-avatar">{initials}</div>
-                  <div className="mobile-nav-user-info">
-                    <strong>{currentUser.displayName}</strong>
-                    <span>{currentVenture?.name ?? 'Sin emprendimiento'}</span>
-                  </div>
+                <div className="mobile-nav-user-avatar">{initials}</div>
+                <div className="mobile-nav-user-info">
+                  <strong>{currentUser.displayName}</strong>
+                  <span>{isAdmin ? 'Panel administrativo' : currentVenture?.name ?? 'Sin emprendimiento'}</span>
                 </div>
+              </div>
               ) : null}
 
               {/* Public links */}

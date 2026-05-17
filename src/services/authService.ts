@@ -35,7 +35,7 @@ export function createDemoUser(): User {
 
 export async function signInWithGoogleAccount() {
   if (!isFirebaseConfigured || !isFirebaseAvailable || !auth || !googleProvider) {
-    throw new Error('Configura las variables VITE_FIREBASE_* para usar Google Login real.')
+    throw new Error('Configurá las variables VITE_FIREBASE_* para usar Google Login real.')
   }
 
   googleProvider.setCustomParameters({ prompt: 'select_account' })

@@ -18,11 +18,11 @@ export function createFollowAction(
   },
 ) {
   if (!followableNetworks.includes(params.network)) {
-    throw new Error('La red elegida no puede recibir acciones FollowBack.')
+    throw new Error('La red elegida no puede recibir este tipo de seguimiento.')
   }
 
   if (params.currentVenture.id === params.targetVenture.id) {
-    throw new Error('No puedes marcar como seguido tu propio emprendimiento.')
+    throw new Error('No podés marcar como seguido tu propio emprendimiento.')
   }
 
   if (!params.targetVenture.socialLinks[params.network]) {
@@ -38,7 +38,7 @@ export function createFollowAction(
   )
 
   if (duplicated) {
-    throw new Error('Ya tienes una solicitud pendiente en esa red.')
+    throw new Error('Ya tenés una solicitud pendiente en esa red.')
   }
 
   const next = structuredClone(database)

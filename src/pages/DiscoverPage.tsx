@@ -43,13 +43,13 @@ export function DiscoverPage() {
 
   function requireAuth() {
     if (!currentUser) {
-      pushToast('Inicia sesion para guardar o marcar follows.', 'neutral')
+      pushToast('Iniciá sesión para guardar o marcar seguimientos.', 'neutral')
       navigate('/login')
       return false
     }
 
     if (!currentVenture) {
-      pushToast('Completa tu emprendimiento para usar Voseguime.', 'neutral')
+      pushToast('Completá tu emprendimiento para usar Voseguime.', 'neutral')
       navigate('/onboarding')
       return false
     }
@@ -62,8 +62,8 @@ export function DiscoverPage() {
       <div className="container">
         <div className="page-heading">
           <span className="eyebrow">Discover</span>
-          <h1>Explora emprendimientos y entra directo a sus redes</h1>
-          <p>Empieza buscando por nombre o palabra clave. Si hace falta, abre filtros avanzados para afinar.</p>
+          <h1>Explorá emprendimientos y entrá directo a sus redes</h1>
+          <p>Empezá buscando por nombre o palabra clave. Si hace falta, abrí filtros avanzados para afinar.</p>
         </div>
 
         <section className="panel filter-panel">
@@ -212,7 +212,7 @@ export function DiscoverPage() {
 
                   try {
                     createFollowAction(targetVenture, network)
-                    pushToast('Solicitud FollowBack creada.', 'success')
+                    pushToast('Solicitud creada.', 'success')
                   } catch (error) {
                     pushToast(error instanceof Error ? error.message : 'No fue posible crear la solicitud.', 'danger')
                   }

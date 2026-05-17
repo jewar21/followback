@@ -22,7 +22,7 @@ export function updateUserAdminFields(
   }
 
   if (params.userId === params.actorUserId && params.role === 'user') {
-    throw new Error('No puedes quitarte el rol admin a ti mismo desde este panel.')
+    throw new Error('No podés quitarte el rol admin desde este panel.')
   }
 
   if (params.role) {

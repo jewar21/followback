@@ -15,7 +15,7 @@ export function ReportModal({ ventureName, onClose, onSubmit }: ReportModalProps
     <div className="modal-backdrop" role="presentation" onClick={onClose}>
       <div className="modal-card" role="dialog" aria-modal="true" onClick={(event) => event.stopPropagation()}>
         <h3>Reportar {ventureName}</h3>
-        <p>Usa este formulario solo para contenido enganoso, spam o datos publicos problematicos.</p>
+        <p>Usá este formulario solo para contenido engañoso, spam o datos públicos problemáticos.</p>
         <label className="field">
           <span>Motivo</span>
           <select value={reason} onChange={(event) => setReason(event.target.value)}>
@@ -27,12 +27,12 @@ export function ReportModal({ ventureName, onClose, onSubmit }: ReportModalProps
           </select>
         </label>
         <label className="field">
-          <span>Descripcion</span>
+          <span>Descripción</span>
           <textarea
             rows={5}
             value={description}
             onChange={(event) => setDescription(event.target.value)}
-            placeholder="Explica que deberia revisar el equipo."
+            placeholder="Explicá qué debería revisar el equipo."
           />
         </label>
         <div className="button-row">

@@ -17,20 +17,20 @@ export function OnboardingPage() {
         <div className="onboarding-layout">
           <section className="page-heading onboarding-heading">
             <span className="eyebrow">Onboarding</span>
-            <h1>{currentVenture ? 'Tu emprendimiento ya existe' : 'Crea tu perfil sin friccion'}</h1>
-            <p>Empieza con nombre, categoria, pais y una red principal. El resto lo puedes completar luego desde tu perfil.</p>
+            <h1>{currentVenture ? 'Tu emprendimiento ya existe' : 'Creá tu perfil sin fricción'}</h1>
+            <p>Empezá con nombre, categoría, país y una red principal. El resto lo podés completar después desde tu perfil.</p>
 
             <div className="onboarding-benefits">
                 <article className="mini-card">
-                <strong>Edicion progresiva</strong>
-                <p>Logo, portada, contacto y redes extra quedan disponibles despues.</p>
+                <strong>Edición progresiva</strong>
+                <p>Logo, portada, contacto y redes extra quedan disponibles después.</p>
               </article>
             </div>
           </section>
 
           {currentVenture ? (
             <div className="panel">
-              <p>Ya tienes un emprendimiento creado.</p>
+              <p>Ya tenés un emprendimiento creado.</p>
               <button className="button button--primary button--block" onClick={() => navigate('/dashboard')}>
                 Ir al dashboard
               </button>
@@ -43,7 +43,7 @@ export function OnboardingPage() {
               onSubmit={(values) => {
                 try {
                   createVenture(values)
-                  pushToast('Perfil publicado. Puedes completar mas datos despues.', 'success')
+                  pushToast('Perfil publicado. Después podés completar más datos.', 'success')
                   navigate('/dashboard')
                 } catch (error) {
                   pushToast(error instanceof Error ? error.message : 'No fue posible publicar.', 'danger')

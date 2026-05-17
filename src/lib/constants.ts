@@ -42,7 +42,7 @@ export const dashboardMetricLabels = {
   linkClicks: 'Clics en redes',
   followersGiven: 'Follows enviados',
   followersReceived: 'Follows recibidos',
-  reciprocatedCount: 'FollowBack completados',
+  reciprocatedCount: 'Seguimientos recíprocos',
   favoriteCount: 'Favoritos',
 }
 

@@ -35,7 +35,7 @@ export function VenturePublicPage() {
         <div className="container">
           <EmptyState
             title="Este emprendimiento no existe"
-            description="Revisa el slug o vuelve al directorio."
+            description="Revisá el slug o volvé al directorio."
             ctaLabel="Volver a explorar"
             ctaTo="/discover"
           />
@@ -92,7 +92,7 @@ export function VenturePublicPage() {
             <div className="section-heading">
               <h2>Redes publicas</h2>
               <Link className="button button--ghost" to={`/ventures/${venture.slug}/networks`}>
-                Vista completa
+                Ver todo
               </Link>
             </div>
             <VentureSocialLinks
@@ -111,7 +111,7 @@ export function VenturePublicPage() {
                 disabled={!currentUser}
                 onClick={() => {
                   if (!currentUser) {
-                    pushToast('Inicia sesion para guardar este emprendimiento.', 'neutral')
+                    pushToast('Iniciá sesión para guardar este emprendimiento.', 'neutral')
                     return
                   }
 
@@ -124,7 +124,7 @@ export function VenturePublicPage() {
                 disabled={!currentUser || !currentVenture || currentVenture?.id === venture.id}
                 onSelect={(network) => {
                   if (!currentUser || !currentVenture) {
-                    pushToast('Completa tu perfil para usar Voseguime.', 'neutral')
+                    pushToast('Completá tu perfil para usar Voseguime.', 'neutral')
                     return
                   }
 

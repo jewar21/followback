@@ -131,6 +131,9 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
 .container {
   width: min(1120px, 100% - clamp(1.25rem, 4vw, 3rem));
   margin-inline: auto;
+  display: grid;
+  gap: 1.5rem;
+  align-content: start;
 }
 
 .page {
@@ -607,7 +610,7 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
 /* ─────────────────────────────────────────
    HERO
 ───────────────────────────────────────── */
-.hero { padding-block: clamp(1.5rem, 4vw, 2.5rem) clamp(0.5rem, 2vw, 1rem); }
+.hero { padding-block: clamp(1.5rem, 4vw, 2.5rem) clamp(0.5rem, 2vw, 1rem); margin-bottom: 1.5rem; }
 
 .hero__content,
 .two-column-layout,
@@ -875,7 +878,7 @@ small { color: var(--muted); font-size: 0.8rem; }
 
 .stack { display: grid; gap: 0.85rem; }
 .page-sections { display: grid; gap: 1.25rem; }
-.page-heading { margin-bottom: 1.25rem; }
+.page-heading { /* spacing handled by parent .container grid gap */ }
 
 /* ─────────────────────────────────────────
    ONBOARDING / FEEDBACK / ADMIN
@@ -912,12 +915,12 @@ small { color: var(--muted); font-size: 0.8rem; }
 }
 
 .admin-layout, .admin-actions, .admin-toolbar { display: grid; gap: 1rem; }
-.admin-filters { margin-bottom: 1rem; }
+.admin-filters { /* spacing handled by parent container gap */ }
 
 /* ─────────────────────────────────────────
    DISCOVER
 ───────────────────────────────────────── */
-.filter-panel { margin-bottom: 1.25rem; }
+.filter-panel { /* spacing handled by parent container gap */ }
 .discover-toolbar, .discover-filter-actions, .discover-active-filters { display: grid; gap: 0.85rem; }
 
 .discover-search__input {
@@ -960,7 +963,7 @@ small { color: var(--muted); font-size: 0.8rem; }
   font-size: 0.84rem;
 }
 
-.discover-active-filters { margin-bottom: 1.25rem; }
+.discover-active-filters { /* spacing handled by parent container gap */ }
 
 /* ─────────────────────────────────────────
    VENTURE CARD
@@ -1074,7 +1077,6 @@ small { color: var(--muted); font-size: 0.8rem; }
 .profile-hero {
   display: grid;
   gap: 1.1rem;
-  margin-bottom: 1.25rem;
   background-size: cover;
   background-position: center;
 }

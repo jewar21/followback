@@ -44,6 +44,13 @@ function mergeUniqueById<T extends { id: string }>(...collections: T[][]) {
   return Array.from(map.values())
 }
 
+function sanitizePushSubscription(subscription: PushSubscriptionRecord): PushSubscriptionRecord {
+  return {
+    ...subscription,
+    token: undefined,
+  }
+}
+
 export async function loadDatabaseFromFirestore(currentUser: User | null): Promise<AppDatabase> {
   const firestore = ensureFirestore()
   const empty = createSeedDatabase()
@@ -94,7 +101,9 @@ export async function loadDatabaseFromFirestore(currentUser: User | null): Promi
       followActions: followActionsSnapshot.docs.map((snapshot) => snapshot.data() as FollowAction),
       favorites: favoritesSnapshot.docs.map((snapshot) => snapshot.data() as Favorite),
       notifications: notificationsSnapshot.docs.map((snapshot) => snapshot.data() as AppNotification),
-      pushSubscriptions: pushSubscriptionsSnapshot.docs.map((snapshot) => snapshot.data() as PushSubscriptionRecord),
+      pushSubscriptions: pushSubscriptionsSnapshot.docs.map((snapshot) =>
+        sanitizePushSubscription(snapshot.data() as PushSubscriptionRecord),
+      ),
     }
   }
 
@@ -136,13 +145,38 @@ export async function loadDatabaseFromFirestore(currentUser: User | null): Promi
     followActions,
     feedbacks,
     notifications: notificationsSnapshot.docs.map((snapshot) => snapshot.data() as AppNotification),
-    pushSubscriptions: pushSubscriptionsSnapshot.docs.map((snapshot) => snapshot.data() as PushSubscriptionRecord),
+    pushSubscriptions: pushSubscriptionsSnapshot.docs.map((snapshot) =>
+      sanitizePushSubscription(snapshot.data() as PushSubscriptionRecord),
+    ),
   }
 }
 
 export async function upsertFirestoreUser(user: User) {
   const firestore = ensureFirestore()
   await setDoc(doc(firestore, 'users', user.uid), user)
+}
+
+export async function ensureFirestoreUser(user: User) {
+  const firestore = ensureFirestore()
+  const reference = doc(firestore, 'users', user.uid)
+  const snapshot = await getDoc(reference)
+
+  if (!snapshot.exists()) {
+    await setDoc(reference, user)
+    return user
+  }
+
+  const existing = snapshot.data() as User
+  const mergedUser: User = {
+    ...existing,
+    email: user.email,
+    displayName: user.displayName,
+    photoURL: user.photoURL,
+    updatedAt: new Date().toISOString(),
+  }
+
+  await setDoc(reference, mergedUser)
+  return mergedUser
 }
 
 export async function upsertFirestoreVenture(venture: Venture) {

@@ -8,6 +8,7 @@ import { createFeedback } from '../../services/feedbackService'
 import { toggleFavorite } from '../../services/favoriteService'
 import {
   deleteFirestoreFavorite,
+  ensureFirestoreUser,
   upsertFirestoreFeedback,
   loadDatabaseFromFirestore,
   upsertFirestoreAnalyticsEvent,
@@ -146,11 +147,25 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
         if (authUser) {
           const persistedUser = nextDatabase.users.find((user) => user.uid === authUser.uid) ?? authUser
           const persistedVenture = getCurrentUserVenture(nextDatabase, authUser.uid)
-
-          await upsertFirestoreUser(persistedUser)
+          const syncedUser = await ensureFirestoreUser(persistedUser)
 
           if (persistedVenture) {
             await upsertFirestoreVenture(persistedVenture)
+          }
+
+          if (!cancelled && syncedUser.updatedAt !== persistedUser.updatedAt) {
+            setDatabase((current) => {
+              const next = structuredClone(current)
+              const index = next.users.findIndex((user) => user.uid === syncedUser.uid)
+
+              if (index === -1) {
+                next.users.unshift(syncedUser)
+              } else {
+                next.users[index] = syncedUser
+              }
+
+              return next
+            })
           }
         }
       } catch (error) {
@@ -226,7 +241,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
 
   function requireUser() {
     if (!currentUser) {
-      throw new Error('Debes iniciar sesion para realizar esta accion.')
+      throw new Error('Debés iniciar sesión para realizar esta acción.')
     }
 
     return currentUser
@@ -312,7 +327,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     const user = requireUser()
 
     if (!currentVenture) {
-      throw new Error('Completa tu emprendimiento antes de usar FollowBack.')
+      throw new Error('Completá tu emprendimiento antes de usar Voseguime.')
     }
 
     setDatabase((current) => {
@@ -612,7 +627,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     const user = requireUser()
 
     if (subscription.userId !== user.uid) {
-      throw new Error('No puedes guardar una suscripcion push para otro usuario.')
+      throw new Error('No podés guardar una suscripción push para otro usuario.')
     }
 
     const nextDatabase = upsertPushSubscriptionRecord(database, subscription)

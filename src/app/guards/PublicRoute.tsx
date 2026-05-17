@@ -11,6 +11,10 @@ export function PublicRoute() {
     return <LoadingState />
   }
 
+  if (user && currentUser?.role === 'admin') {
+    return <Navigate to="/admin" replace />
+  }
+
   if (user && currentUser?.onboardingCompleted) {
     return <Navigate to="/dashboard" replace />
   }

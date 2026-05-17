@@ -11,7 +11,7 @@ export function LandingPage() {
         <div className="container hero__content">
           <div className="hero-copy">
             <span className="eyebrow">Directorio inteligente de emprendimientos</span>
-            <h1>Descubre emprendimientos, conecta con sus redes y crece en comunidad.</h1>
+            <h1>Descubrí emprendimientos, conectá con sus redes y crecé en comunidad.</h1>
             <p>
               Voseguime es una red de apoyo visible donde marcas, artistas, creadores y negocios emergentes comparten sus
               perfiles sociales para ser encontrados, seguidos y contactados sin automatizar nada.
@@ -52,12 +52,12 @@ export function LandingPage() {
         <article className="highlight-card">
           <Globe2 size={22} />
           <h3>Redes en un solo lugar</h3>
-          <p>Instagram, TikTok, sitios web, WhatsApp y mas en una ficha clara para descubrir y contactar.</p>
+          <p>Instagram, TikTok, sitios web, WhatsApp y más en una ficha clara para descubrir y contactar.</p>
         </article>
         <article className="highlight-card">
           <Network size={22} />
           <h3>Mapa de comunidad</h3>
-          <p>Visualiza nodos, conexiones y señales de reciprocidad para entender mejor tu ecosistema.</p>
+          <p>Visualizá nodos, conexiones y señales de reciprocidad para entender mejor tu ecosistema.</p>
         </article>
       </section>
     </div>

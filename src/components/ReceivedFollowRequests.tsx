@@ -17,7 +17,7 @@ export function ReceivedFollowRequests({
   onReject,
 }: ReceivedFollowRequestsProps) {
   if (actions.length === 0) {
-    return <p className="muted-text">Aun no has recibido solicitudes.</p>
+    return <p className="muted-text">Aún no recibiste solicitudes.</p>
   }
 
   return (
@@ -29,7 +29,7 @@ export function ReceivedFollowRequests({
             <div>
               <h4>{venture?.name ?? 'Emprendimiento'}</h4>
               <p>
-                Dice que te siguio por {socialNetworkLabels[action.network]} el {formatDateLabel(action.createdAt)}.
+                Dice que te siguió por {socialNetworkLabels[action.network]} el {formatDateLabel(action.createdAt)}.
               </p>
             </div>
             <div className="button-row">
@@ -41,7 +41,7 @@ export function ReceivedFollowRequests({
               {action.status === 'pending' ? (
                 <>
                   <button className="button button--primary" onClick={() => onReciprocate(action.id)}>
-                    Lo segui de vuelta
+                    Lo seguí de vuelta
                   </button>
                   <button className="button button--ghost" onClick={() => onReject(action.id)}>
                     Rechazar

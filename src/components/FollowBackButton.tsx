@@ -20,7 +20,7 @@ export function FollowBackButton({ networks, onSelect, disabled }: FollowBackBut
   if (networks.length === 0) {
     return (
       <button className="button button--ghost" disabled>
-        Sin redes followback
+        Sin redes para marcar
       </button>
     )
   }
@@ -29,7 +29,7 @@ export function FollowBackButton({ networks, onSelect, disabled }: FollowBackBut
     <div className="dropdown">
       <button className="button button--secondary" onClick={() => setOpen((current) => !current)} disabled={disabled}>
         <Handshake size={16} />
-        Ya lo segui
+        Ya lo seguí
       </button>
       {open ? (
         <div className="dropdown-panel">
