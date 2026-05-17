@@ -42,7 +42,6 @@ import type { FeedbackFormValues, VentureFormValues } from '../../types/forms'
 import type {
   AnnouncementAudience,
   AppDatabase,
-  AppNotification,
   Feedback,
   FollowActionStatus,
   PushSubscriptionRecord,

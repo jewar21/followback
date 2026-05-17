@@ -39,11 +39,13 @@ export function SettingsPage() {
     )
   }
 
+  const currentUserId = currentUser.uid
+
   async function handleEnablePush() {
     setSyncingPush(true)
 
     try {
-      const subscription = await syncPushSubscription(currentUser.uid)
+      const subscription = await syncPushSubscription(currentUserId)
       savePushSubscription(subscription)
 
       if (subscription.status === 'enabled') {

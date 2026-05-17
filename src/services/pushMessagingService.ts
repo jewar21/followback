@@ -34,8 +34,9 @@ export async function syncPushSubscription(userId: string): Promise<PushSubscrip
   const timestamp = new Date().toISOString()
   const baseRecord = createBaseRecord(userId)
   const subscriptionId = `${userId}-web`
+  const firebaseApp = app ?? undefined
 
-  if (!(await isPushMessagingSupported())) {
+  if (!(await isPushMessagingSupported()) || !firebaseApp) {
     return {
       id: subscriptionId,
       ...baseRecord,
@@ -64,7 +65,7 @@ export async function syncPushSubscription(userId: string): Promise<PushSubscrip
   try {
     const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js')
     const { getMessaging, getToken } = await import('firebase/messaging')
-    const messaging = getMessaging(app)
+    const messaging = getMessaging(firebaseApp)
     const token = await getToken(messaging, {
       vapidKey: firebaseEnv.vapidKey,
       serviceWorkerRegistration: registration,
@@ -108,11 +109,13 @@ export async function syncPushSubscription(userId: string): Promise<PushSubscrip
 export async function subscribeToForegroundMessages(
   callback: (payload: MessagePayload) => void,
 ): Promise<(() => void) | undefined> {
-  if (!(await isPushMessagingSupported()) || !app) {
+  const firebaseApp = app ?? undefined
+
+  if (!(await isPushMessagingSupported()) || !firebaseApp) {
     return undefined
   }
 
   const { getMessaging, onMessage } = await import('firebase/messaging')
-  const messaging = getMessaging(app)
+  const messaging = getMessaging(firebaseApp)
   return onMessage(messaging, callback)
 }
