@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FIREBASE_PROJECT_ID_RESOLVED: ${{ secrets.FIREBASE_PROJECT_ID || secrets.VITE_FIREBASE_PROJECT_ID }}
+      DEPLOY_FUNCTIONS: ${{ secrets.DEPLOY_FUNCTIONS }}
 
     steps:
       - name: Checkout repository
@@ -61,9 +62,11 @@ jobs:
           echo "GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/firebase-service-account.json" >> "$GITHUB_ENV"
 
       - name: Install functions dependencies
+        if: ${{ env.DEPLOY_FUNCTIONS == 'true' }}
         run: npm ci --prefix functions
 
       - name: Validate email automation secrets
+        if: ${{ env.DEPLOY_FUNCTIONS == 'true' }}
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           MAIL_FROM: ${{ secrets.MAIL_FROM }}
@@ -85,6 +88,7 @@ jobs:
           fi
 
       - name: Write functions environment
+        if: ${{ env.DEPLOY_FUNCTIONS == 'true' }}
         env:
           MAIL_FROM: ${{ secrets.MAIL_FROM }}
           APP_BASE_URL: ${{ secrets.APP_BASE_URL }}
@@ -99,6 +103,7 @@ jobs:
           EOF
 
       - name: Sync RESEND_API_KEY to Firebase Secret Manager
+        if: ${{ env.DEPLOY_FUNCTIONS == 'true' }}
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
         run: |
@@ -108,7 +113,12 @@ jobs:
             --data-file "$RUNNER_TEMP/resend_api_key.txt"
 
       - name: Deploy Firestore and Functions
+        if: ${{ env.DEPLOY_FUNCTIONS == 'true' }}
         run: firebase deploy --project "$FIREBASE_PROJECT_ID_RESOLVED" --only firestore,functions --non-interactive
+
+      - name: Deploy Firestore only
+        if: ${{ env.DEPLOY_FUNCTIONS != 'true' }}
+        run: firebase deploy --project "$FIREBASE_PROJECT_ID_RESOLVED" --only firestore --non-interactive
 
       - name: Deploy production
         uses: FirebaseExtended/action-hosting-deploy@v0

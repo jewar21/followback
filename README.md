@@ -118,7 +118,7 @@ Workflows incluidos:
 
 - `.github/workflows/firebase-hosting-merge.yml`
   Publica automaticamente a produccion al hacer `push` o merge a `main`.
-  Despliega Functions, Hosting y Firestore. No despliega Storage mientras el proyecto siga en Spark.
+  Despliega Hosting y Firestore siempre. `Functions` solo se despliega si activas `DEPLOY_FUNCTIONS=true`. No despliega Storage mientras el proyecto siga en Spark.
 
 ## GitHub Secrets requeridos
 
@@ -136,10 +136,12 @@ Configura estos secrets en `Settings -> Secrets and variables -> Actions`:
 - `APP_BASE_URL`
 - `EMAIL_AUTOMATION_ENABLED`
 - `ADMIN_CAMPAIGNS_ENABLED`
+- `DEPLOY_FUNCTIONS`
 
 Si no quieres duplicar el project id, los workflows tambien aceptan `VITE_FIREBASE_PROJECT_ID` como fallback para el deploy.
 `VITE_FIREBASE_STORAGE_BUCKET` es opcional mientras Storage siga deshabilitado.
 `EMAIL_AUTOMATION_ENABLED` y `ADMIN_CAMPAIGNS_ENABLED` pueden quedar en `false` si quieres desplegar Functions sin activar correos todavia.
+`DEPLOY_FUNCTIONS=false` es la configuracion correcta si sigues en Spark y no quieres que GitHub intente usar Cloud Functions o Secret Manager.
 
 Para deploys locales de Functions puedes partir de [`functions/.env.example`](/home/yisus/Documents/workspace/UFPSO/followback/functions/.env.example:1), pero en GitHub Actions esos valores deben existir como `Secrets`.
 

@@ -41,6 +41,7 @@ Secrets requeridos en `Settings -> Secrets and variables -> Actions`:
 
 - `FIREBASE_PROJECT_ID` o `VITE_FIREBASE_PROJECT_ID`
 - `FIREBASE_SERVICE_ACCOUNT_FOLLOWBACK`
+- `DEPLOY_FUNCTIONS`
 - `RESEND_API_KEY`
 - `MAIL_FROM`
 - `APP_BASE_URL`
@@ -54,6 +55,8 @@ El workflow:
 3. sincroniza `RESEND_API_KEY` con Secret Manager
 4. despliega `firestore` y `functions`
 5. despliega Hosting
+
+Si `DEPLOY_FUNCTIONS` no es `true`, el workflow omite todos esos pasos y despliega solo `firestore` y `hosting`.
 
 Si prefieres establecer parametros antes del deploy, puedes crear `functions/.env` con:
 
@@ -85,6 +88,7 @@ Si quieres dejar los correos listos pero apagados al inicio:
 - Tener un dominio verificado en Resend
 - Usar un remitente valido en `MAIL_FROM`
 - Desplegar `functions` y `firestore.rules`
+- Tener el proyecto en plan `Blaze` si vas a usar Cloud Functions con secretos de Firebase
 
 ## Como obtener cada variable
 
