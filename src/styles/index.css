@@ -1105,6 +1105,20 @@ small { color: var(--muted); font-size: 0.8rem; }
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
 }
 
+.venture-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+.load-more {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+}
+
 /* ─────────────────────────────────────────
    REQUESTS / NOTIFICATIONS
 ───────────────────────────────────────── */
@@ -1254,6 +1268,8 @@ small { color: var(--muted); font-size: 0.8rem; }
   .discover-filter-actions { display: flex; flex-wrap: wrap; }
   .discover-active-filters { display: flex; flex-wrap: wrap; }
 
+  .venture-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
+
   .onboarding-layout { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); align-items: start; }
   .onboarding-benefits { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
@@ -1270,4 +1286,8 @@ small { color: var(--muted); font-size: 0.8rem; }
   .profile-hero__meta { grid-template-columns: 1fr; }
 
   .venture-avatar { width: 52px; height: 52px; border-radius: 15px; }
+}
+
+@media (min-width: 1024px) {
+  .venture-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }

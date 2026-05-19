@@ -1,5 +1,5 @@
 import { Search, SlidersHorizontal, X } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppData } from '../app/providers/AppDataProvider'
 import { CategoryFilter } from '../components/CategoryFilter'
@@ -15,6 +15,8 @@ import { PRIMARY_COUNTRY_NAME } from '../lib/geo'
 import { filterVentures } from '../services/ventureService'
 import { defaultVentureFilters } from '../types/forms'
 
+const PAGE_SIZE = 24
+
 function isNonEmptyString(value: string | undefined): value is string {
   return Boolean(value)
 }
@@ -28,6 +30,11 @@ export function DiscoverPage() {
   })
   const [filters, setFilters] = useState(defaultVentureFilters)
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
+
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE)
+  }, [filters])
   const { currentUser, currentVenture, publishedVentures, toggleFavorite, createFollowAction } = useAppData()
   const { isFavorite } = useFavorites()
   const { pushToast } = useToast()
@@ -99,7 +106,7 @@ export function DiscoverPage() {
                 <input
                   value={filters.search}
                   onChange={(event) => setFilters((current) => ({ ...current, search: event.target.value }))}
-                  placeholder="Cafe, branding, musica..."
+                  placeholder="Café, branding, música..."
                 />
               </div>
             </label>
@@ -115,10 +122,10 @@ export function DiscoverPage() {
                   }))
                 }
               >
-                <option value="recent">Mas recientes</option>
-                <option value="active">Mas activos</option>
-                <option value="supported">Mas apoyados</option>
-                <option value="trusted">Mejor reputacion</option>
+                <option value="recent">Más recientes</option>
+                <option value="active">Más activos</option>
+                <option value="supported">Más apoyados</option>
+                <option value="trusted">Mejor reputación</option>
               </select>
             </label>
           </div>
@@ -190,7 +197,7 @@ export function DiscoverPage() {
 
         {!showAdvancedFilters && activeAdvancedFilters.length > 0 ? (
           <section className="discover-active-filters">
-            {filters.category ? <span className="tag">Categoria: {filters.category}</span> : null}
+            {filters.category ? <span className="tag">Categoría: {filters.category}</span> : null}
             {filters.department ? <span className="tag">Departamento: {filters.department}</span> : null}
             {filters.city ? <span className="tag">Ciudad: {filters.city}</span> : null}
             {filters.network ? <span className="tag">Red: {filters.network}</span> : null}
@@ -201,40 +208,55 @@ export function DiscoverPage() {
         {filteredVentures.length === 0 ? (
           <EmptyState
             title="No encontramos emprendimientos con esos filtros"
-            description="Prueba otra categoria, pais o una busqueda mas amplia."
+            description="Probá otra categoría o una búsqueda más amplia."
           />
         ) : (
-          <div className="card-grid">
-            {filteredVentures.map((venture) => (
-              <VentureCard
-                key={venture.id}
-                venture={venture}
-                isFavorite={isFavorite(venture.id)}
-                disableProtectedActions={!currentUser}
-                onProtectedAction={requireAuth}
-                onToggleFavorite={() => {
-                  if (!requireAuth()) {
-                    return
-                  }
+          <>
+            <div className="venture-grid">
+              {filteredVentures.slice(0, visibleCount).map((venture) => (
+                <VentureCard
+                  key={venture.id}
+                  venture={venture}
+                  isFavorite={isFavorite(venture.id)}
+                  disableProtectedActions={!currentUser}
+                  onProtectedAction={requireAuth}
+                  onToggleFavorite={() => {
+                    if (!requireAuth()) {
+                      return
+                    }
 
-                  toggleFavorite(venture.id)
-                  pushToast('Favoritos actualizados.', 'success')
-                }}
-                onCreateFollowAction={(targetVenture, network) => {
-                  if (!requireAuth()) {
-                    return
-                  }
+                    toggleFavorite(venture.id)
+                    pushToast('Favoritos actualizados.', 'success')
+                  }}
+                  onCreateFollowAction={(targetVenture, network) => {
+                    if (!requireAuth()) {
+                      return
+                    }
 
-                  try {
-                    createFollowAction(targetVenture, network)
-                    pushToast('Solicitud creada.', 'success')
-                  } catch (error) {
-                    pushToast(error instanceof Error ? error.message : 'No fue posible crear la solicitud.', 'danger')
-                  }
-                }}
-              />
-            ))}
-          </div>
+                    try {
+                      createFollowAction(targetVenture, network)
+                      pushToast('Solicitud creada.', 'success')
+                    } catch (error) {
+                      pushToast(error instanceof Error ? error.message : 'No fue posible crear la solicitud.', 'danger')
+                    }
+                  }}
+                />
+              ))}
+            </div>
+
+            {visibleCount < filteredVentures.length ? (
+              <div className="load-more">
+                <span className="muted-text">{Math.min(visibleCount, filteredVentures.length)} de {filteredVentures.length}</span>
+                <button
+                  className="button button--ghost"
+                  type="button"
+                  onClick={() => setVisibleCount((count) => count + PAGE_SIZE)}
+                >
+                  Ver más
+                </button>
+              </div>
+            ) : null}
+          </>
         )}
       </div>
     </div>
