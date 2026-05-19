@@ -28,7 +28,7 @@ export function NetworkMapPage() {
   const colombiaVentures = publishedVentures.filter((venture) => venture.country === PRIMARY_COUNTRY_NAME)
   const departments = Array.from(
     new Set(colombiaVentures.map((venture) => venture.department).filter(isNonEmptyString)),
-  ).sort()
+  ).sort((a, b) => a.localeCompare(b))
   const cities = Array.from(
     new Set(
       colombiaVentures
@@ -36,7 +36,7 @@ export function NetworkMapPage() {
         .map((venture) => venture.city)
         .filter(isNonEmptyString),
     ),
-  ).sort()
+  ).sort((a, b) => a.localeCompare(b))
   const nodes = colombiaVentures
     .filter((venture) => !category || venture.category === category)
     .filter((venture) => !department || venture.department === department)

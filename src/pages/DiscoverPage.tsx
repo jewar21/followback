@@ -1,5 +1,5 @@
 import { Search, SlidersHorizontal, X } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppData } from '../app/providers/AppDataProvider'
 import { CategoryFilter } from '../components/CategoryFilter'
@@ -32,9 +32,11 @@ export function DiscoverPage() {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
 
-  useEffect(() => {
+  function updateFilters(updater: (current: typeof defaultVentureFilters) => typeof defaultVentureFilters) {
+    setFilters(updater)
     setVisibleCount(PAGE_SIZE)
-  }, [filters])
+  }
+
   const { currentUser, currentVenture, publishedVentures, toggleFavorite, createFollowAction } = useAppData()
   const { isFavorite } = useFavorites()
   const { pushToast } = useToast()
@@ -50,7 +52,7 @@ export function DiscoverPage() {
         .map((venture) => venture.department)
         .filter(isNonEmptyString),
     ),
-  ).sort()
+  ).sort((a, b) => a.localeCompare(b))
   const availableCities = Array.from(
     new Set(
       filteredVentures
@@ -58,7 +60,7 @@ export function DiscoverPage() {
         .map((venture) => venture.city)
         .filter(isNonEmptyString),
     ),
-  ).sort()
+  ).sort((a, b) => a.localeCompare(b))
   const activeAdvancedFilters = [
     filters.tag,
     filters.category,
@@ -69,6 +71,7 @@ export function DiscoverPage() {
 
   function resetFilters() {
     setFilters(defaultVentureFilters)
+    setVisibleCount(PAGE_SIZE)
     setShowAdvancedFilters(false)
   }
 
@@ -88,6 +91,22 @@ export function DiscoverPage() {
     return true
   }
 
+  function handleToggleFavorite(ventureId: string) {
+    if (!requireAuth()) return
+    toggleFavorite(ventureId)
+    pushToast('Favoritos actualizados.', 'success')
+  }
+
+  function handleCreateFollowAction(...args: Parameters<typeof createFollowAction>) {
+    if (!requireAuth()) return
+    try {
+      createFollowAction(...args)
+      pushToast('Solicitud creada.', 'success')
+    } catch (error) {
+      pushToast(error instanceof Error ? error.message : 'No fue posible crear la solicitud.', 'danger')
+    }
+  }
+
   return (
     <div className="page">
       <div className="container">
@@ -105,7 +124,7 @@ export function DiscoverPage() {
                 <Search size={18} />
                 <input
                   value={filters.search}
-                  onChange={(event) => setFilters((current) => ({ ...current, search: event.target.value }))}
+                  onChange={(event) => updateFilters((current) => ({ ...current, search: event.target.value }))}
                   placeholder="Café, branding, música..."
                 />
               </div>
@@ -116,7 +135,7 @@ export function DiscoverPage() {
               <select
                 value={filters.sortBy}
                 onChange={(event) =>
-                  setFilters((current) => ({
+                  updateFilters((current) => ({
                     ...current,
                     sortBy: event.target.value as typeof current.sortBy,
                   }))
@@ -159,21 +178,21 @@ export function DiscoverPage() {
                 <span>Buscar por tag</span>
                 <input
                   value={filters.tag}
-                  onChange={(event) => setFilters((current) => ({ ...current, tag: event.target.value }))}
+                  onChange={(event) => updateFilters((current) => ({ ...current, tag: event.target.value }))}
                   placeholder="branding"
                 />
               </label>
 
               <CategoryFilter
                 value={filters.category}
-                onChange={(value) => setFilters((current) => ({ ...current, category: value }))}
+                onChange={(value) => updateFilters((current) => ({ ...current, category: value }))}
               />
 
               <DepartmentFilter
                 departments={availableDepartments}
                 value={filters.department}
                 onChange={(value) =>
-                  setFilters((current) => ({
+                  updateFilters((current) => ({
                     ...current,
                     department: value,
                     city: '',
@@ -184,12 +203,12 @@ export function DiscoverPage() {
               <CityFilter
                 cities={availableCities}
                 value={filters.city}
-                onChange={(value) => setFilters((current) => ({ ...current, city: value }))}
+                onChange={(value) => updateFilters((current) => ({ ...current, city: value }))}
               />
 
               <NetworkFilter
                 value={filters.network}
-                onChange={(value) => setFilters((current) => ({ ...current, network: value }))}
+                onChange={(value) => updateFilters((current) => ({ ...current, network: value }))}
               />
             </div>
           ) : null}
@@ -220,26 +239,8 @@ export function DiscoverPage() {
                   isFavorite={isFavorite(venture.id)}
                   disableProtectedActions={!currentUser}
                   onProtectedAction={requireAuth}
-                  onToggleFavorite={() => {
-                    if (!requireAuth()) {
-                      return
-                    }
-
-                    toggleFavorite(venture.id)
-                    pushToast('Favoritos actualizados.', 'success')
-                  }}
-                  onCreateFollowAction={(targetVenture, network) => {
-                    if (!requireAuth()) {
-                      return
-                    }
-
-                    try {
-                      createFollowAction(targetVenture, network)
-                      pushToast('Solicitud creada.', 'success')
-                    } catch (error) {
-                      pushToast(error instanceof Error ? error.message : 'No fue posible crear la solicitud.', 'danger')
-                    }
-                  }}
+                  onToggleFavorite={() => handleToggleFavorite(venture.id)}
+                  onCreateFollowAction={handleCreateFollowAction}
                 />
               ))}
             </div>
