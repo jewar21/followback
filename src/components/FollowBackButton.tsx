@@ -8,34 +8,36 @@ type FollowBackButtonProps = {
   disabled?: boolean
 }
 
-export function FollowBackButton({ networks, onSelect, disabled }: FollowBackButtonProps) {
+export function FollowBackButton({ networks, onSelect, disabled }: Readonly<FollowBackButtonProps>) {
   const [open, setOpen] = useState(false)
 
   if (networks.length === 0) {
     return (
-      <button className="button button--ghost" disabled>
+      <button type="button" className="button button--ghost" disabled>
         Sin redes para marcar
       </button>
     )
   }
 
+  function handleToggle() {
+    setOpen((current) => !current)
+  }
+
+  function handleSelect(network: FollowableNetwork) {
+    onSelect(network)
+    setOpen(false)
+  }
+
   return (
     <div className="dropdown">
-      <button className="button button--secondary" onClick={() => setOpen((current) => !current)} disabled={disabled}>
+      <button type="button" className="button button--secondary" onClick={handleToggle} disabled={disabled}>
         <Handshake size={16} />
         Ya lo seguí
       </button>
       {open ? (
         <div className="dropdown-panel">
           {networks.map((network) => (
-            <button
-              key={network}
-              className="dropdown-item"
-              onClick={() => {
-                onSelect(network)
-                setOpen(false)
-              }}
-            >
+            <button type="button" key={network} className="dropdown-item" onClick={() => handleSelect(network)}>
               {socialNetworkLabels[network]}
             </button>
           ))}
