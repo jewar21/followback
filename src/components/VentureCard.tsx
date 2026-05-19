@@ -33,7 +33,7 @@ export function VentureCard({
           <div className="venture-avatar">
             {venture.logoURL ? <img src={venture.logoURL} alt={venture.name} /> : venture.name.slice(0, 2)}
           </div>
-          <div>
+          <div className="venture-brand__copy">
             <h3>{venture.name}</h3>
             <p>{venture.category} • {formatLocationLabel(venture) || 'Ubicación pendiente'}</p>
           </div>

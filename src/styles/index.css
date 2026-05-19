@@ -798,7 +798,13 @@ small { color: var(--muted); font-size: 0.8rem; }
 
 .button--block { width: 100%; }
 .button-row { align-items: center; }
-.button-row--stretch { grid-template-columns: 1fr; }
+.button-row--stretch {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.button-row--stretch > *:first-child { flex: 1; min-width: 100px; }
 
 /* ─────────────────────────────────────────
    PANELS / AUTH
@@ -1021,7 +1027,9 @@ small { color: var(--muted); font-size: 0.8rem; }
   font-size: 1.45rem;
 }
 
-.venture-brand { justify-content: flex-start; min-width: 0; }
+.venture-brand { justify-content: flex-start; min-width: 0; overflow: hidden; }
+.venture-brand__copy { min-width: 0; flex: 1; overflow: hidden; }
+.venture-card__header .status-pill { flex-shrink: 0; }
 
 .venture-brand h3 {
   font-size: 0.9375rem;
@@ -1046,7 +1054,6 @@ small { color: var(--muted); font-size: 0.8rem; }
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  min-height: 3.4rem;
   font-size: 0.875rem;
   line-height: 1.6;
   color: var(--muted);
@@ -1073,7 +1080,10 @@ small { color: var(--muted); font-size: 0.8rem; }
 /* ─────────────────────────────────────────
    SOCIAL LINKS
 ───────────────────────────────────────── */
-.social-links-grid--compact { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.social-links-grid--compact {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.social-links-grid--compact .social-link { min-height: 34px; font-size: 0.8rem; }
 
 .social-link {
   justify-content: flex-start;
@@ -1260,7 +1270,6 @@ small { color: var(--muted); font-size: 0.8rem; }
   .highlight-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
   .button-row { display: flex; flex-wrap: wrap; }
-  .button-row--stretch { display: grid; grid-template-columns: 1fr auto auto; }
 
   .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
